@@ -258,3 +258,20 @@
   font-size: 0.85rem !important;
   opacity: 0.8;
 }
+
+.scan-indicator {
+  margin-top: 10px;
+  color: #4caf50;
+  font-weight: 600;
+  font-size: 0.9rem;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

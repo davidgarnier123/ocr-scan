@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { BrowserMultiFormatReader } from '@zxing/library'
+import { BrowserMultiFormatReader, DecodeHintType } from '@zxing/library'
 import './CameraCapture.css'
 
 function CameraCapture({ onScanComplete, onCancel }) {
@@ -7,9 +7,12 @@ function CameraCapture({ onScanComplete, onCancel }) {
   const [detectedId, setDetectedId] = useState(null)
   const [error, setError] = useState(null)
   const [scanning, setScanning] = useState(true)
+  const [isProcessing, setIsProcessing] = useState(false)
   const videoRef = useRef(null)
+  const canvasRef = useRef(null)
   const codeReaderRef = useRef(null)
-  const scanControllerRef = useRef(null)
+  const animationFrameRef = useRef(null)
+  const lastScanTimeRef = useRef(0)
 
   // Démarrer la caméra et la détection
   useEffect(() => {
@@ -30,8 +33,13 @@ function CameraCapture({ onScanComplete, onCancel }) {
           videoRef.current.srcObject = mediaStream
           
           // Attendre que la vidéo soit prête
-          videoRef.current.onloadedmetadata = async () => {
-            await startScanning()
+          videoRef.current.onloadedmetadata = () => {
+            // Initialiser le canvas
+            if (canvasRef.current && videoRef.current) {
+              canvasRef.current.width = videoRef.current.videoWidth
+              canvasRef.current.height = videoRef.current.videoHeight
+            }
+            startScanning()
           }
         }
       } catch (err) {
@@ -51,52 +59,114 @@ function CameraCapture({ onScanComplete, onCancel }) {
     }
   }, [])
 
-  const startScanning = async () => {
-    if (!videoRef.current || codeReaderRef.current || !scanning) return
+  const startScanning = () => {
+    if (!videoRef.current || !canvasRef.current || codeReaderRef.current) return
 
+    // Créer le lecteur de codes avec configuration optimisée
     const codeReader = new BrowserMultiFormatReader()
     codeReaderRef.current = codeReader
 
-    try {
-      const controller = await codeReader.decodeFromVideoDevice(
-        null,
-        videoRef.current,
-        (result, error) => {
-          if (result) {
-            const text = result.getText()
+    // Fonction de scan avec canvas
+    const scanFrame = async () => {
+      if (!scanning || !videoRef.current || !canvasRef.current || isProcessing) {
+        animationFrameRef.current = requestAnimationFrame(scanFrame)
+        return
+      }
+
+      const now = Date.now()
+      // Scanner environ 10 fois par seconde pour ne pas surcharger
+      if (now - lastScanTimeRef.current < 100) {
+        animationFrameRef.current = requestAnimationFrame(scanFrame)
+        return
+      }
+      lastScanTimeRef.current = now
+
+      try {
+        const video = videoRef.current
+        const canvas = canvasRef.current
+        const context = canvas.getContext('2d', { willReadFrequently: true })
+
+        // Vérifier que la vidéo est prête
+        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+          // Dessiner la frame actuelle sur le canvas
+          context.drawImage(video, 0, 0, canvas.width, canvas.height)
+
+          setIsProcessing(true)
+          
+          try {
+            // Créer une image depuis le canvas (méthode compatible)
+            const image = new Image()
+            image.src = canvas.toDataURL('image/png')
             
-            // Vérifier si c'est un identifiant à 7 chiffres
-            const sevenDigitMatch = text.match(/^\d{7}$/)
-            if (sevenDigitMatch) {
-              setDetectedId(sevenDigitMatch[0])
-              setScanning(false)
-              stopScanning()
-            } else {
-              // Essayer d'extraire 7 chiffres du texte
-              const digits = text.replace(/\D/g, '')
-              if (digits.length >= 7) {
-                const id = digits.substring(0, 7)
-                setDetectedId(id)
+            // Attendre que l'image soit chargée
+            await new Promise((resolve, reject) => {
+              image.onload = resolve
+              image.onerror = reject
+              // Timeout de sécurité
+              setTimeout(() => reject(new Error('Timeout')), 1000)
+            })
+            
+            // Analyser l'image avec ZXing (avec hints pour améliorer la détection)
+            const hints = new Map()
+            hints.set(DecodeHintType.TRY_HARDER, true)
+            hints.set(DecodeHintType.POSSIBLE_FORMATS, [
+              // Formats de codes-barres courants
+              'EAN_13', 'EAN_8', 'UPC_A', 'UPC_E', 
+              'CODE_128', 'CODE_39', 'CODE_93', 'ITF', 
+              'CODABAR', 'QR_CODE', 'DATA_MATRIX'
+            ])
+            const result = await codeReader.decodeFromImageElement(image, hints)
+            
+            if (result) {
+              const text = result.getText()
+              console.log('Code détecté:', text)
+              
+              // Vérifier si c'est un identifiant à 7 chiffres
+              const sevenDigitMatch = text.match(/^\d{7}$/)
+              if (sevenDigitMatch) {
+                setDetectedId(sevenDigitMatch[0])
                 setScanning(false)
                 stopScanning()
+                return
+              } else {
+                // Essayer d'extraire 7 chiffres du texte
+                const digits = text.replace(/\D/g, '')
+                if (digits.length >= 7) {
+                  const id = digits.substring(0, 7)
+                  console.log('Identifiant extrait:', id)
+                  setDetectedId(id)
+                  setScanning(false)
+                  stopScanning()
+                  return
+                }
               }
             }
-          }
-          
-          if (error && error.name !== 'NotFoundException') {
-            // Ignorer les erreurs "pas de code trouvé" (c'est normal)
-            console.debug('Scan error:', error)
+          } catch (scanError) {
+            // NotFoundException est normal, on continue à scanner
+            if (scanError.name !== 'NotFoundException') {
+              console.debug('Erreur scan:', scanError)
+            }
+          } finally {
+            setIsProcessing(false)
           }
         }
-      )
-      scanControllerRef.current = controller
-    } catch (err) {
-      console.error('Erreur scan:', err)
-      setError('Erreur lors de l\'initialisation du scanner')
+      } catch (err) {
+        console.error('Erreur lors du scan:', err)
+        setIsProcessing(false)
+      }
+
+      animationFrameRef.current = requestAnimationFrame(scanFrame)
     }
+
+    // Démarrer la boucle de scan
+    animationFrameRef.current = requestAnimationFrame(scanFrame)
   }
 
   const stopScanning = () => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current)
+      animationFrameRef.current = null
+    }
     if (codeReaderRef.current) {
       try {
         codeReaderRef.current.reset()
@@ -105,12 +175,10 @@ function CameraCapture({ onScanComplete, onCancel }) {
       }
       codeReaderRef.current = null
     }
-    if (scanControllerRef.current) {
-      scanControllerRef.current = null
-    }
+    setIsProcessing(false)
   }
 
-  const handleRetry = async () => {
+  const handleRetry = () => {
     setDetectedId(null)
     setError(null)
     setScanning(true)
@@ -118,7 +186,7 @@ function CameraCapture({ onScanComplete, onCancel }) {
     // Attendre un peu avant de redémarrer
     setTimeout(() => {
       startScanning()
-    }, 100)
+    }, 200)
   }
 
   const handleConfirm = () => {
@@ -127,6 +195,13 @@ function CameraCapture({ onScanComplete, onCancel }) {
       onScanComplete(detectedId)
     }
   }
+
+  // Nettoyer à la fin
+  useEffect(() => {
+    return () => {
+      stopScanning()
+    }
+  }, [])
 
   return (
     <div className="camera-capture">
@@ -152,6 +227,10 @@ function CameraCapture({ onScanComplete, onCancel }) {
             muted
             className="video-preview"
           />
+          <canvas 
+            ref={canvasRef} 
+            style={{ display: 'none' }}
+          />
           
           {/* Overlay de scan */}
           <div className="scan-overlay">
@@ -165,6 +244,9 @@ function CameraCapture({ onScanComplete, onCancel }) {
             <p className="scan-instruction">
               {scanning ? 'Pointez la caméra vers le code-barres' : 'Code détecté !'}
             </p>
+            {isProcessing && scanning && (
+              <div className="scan-indicator">🔍 Analyse...</div>
+            )}
           </div>
         </div>
 
@@ -193,6 +275,7 @@ function CameraCapture({ onScanComplete, onCancel }) {
           <div className="scanning-hint">
             <p>📷 Recherche de code-barres en cours...</p>
             <p className="hint-text">Assurez-vous que le code est bien visible et éclairé</p>
+            <p className="hint-text">Le code doit contenir un identifiant à 7 chiffres</p>
           </div>
         )}
       </div>
