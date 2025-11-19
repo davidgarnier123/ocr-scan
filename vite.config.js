@@ -9,9 +9,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
-        name: 'OCR Scan - Gestion d\'écrans',
-        short_name: 'OCR Scan',
-        description: 'Application de scan OCR pour gérer des écrans avec identifiants',
+        name: 'Code Scanner - Gestion d\'écrans',
+        short_name: 'Code Scanner',
+        description: 'Application de scan de codes-barres pour gérer des écrans avec identifiants',
         theme_color: '#4a90e2',
         background_color: '#ffffff',
         display: 'standalone',

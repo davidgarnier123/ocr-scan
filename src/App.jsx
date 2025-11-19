@@ -44,8 +44,8 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>📱 OCR Scan</h1>
-        <p className="subtitle">Gestion d'écrans par identifiant</p>
+        <h1>📱 Code Scanner</h1>
+        <p className="subtitle">Gestion d'écrans par code-barres</p>
       </header>
 
       {!showCamera ? (
@@ -54,7 +54,7 @@ function App() {
             className="btn-primary"
             onClick={() => setShowCamera(true)}
           >
-            📷 Scanner un écran
+            📷 Scanner un code-barres
           </button>
           
           <ScreenList 

@@ -1,11 +1,11 @@
-# OCR Scan - Gestion d'écrans
+# Code Scanner - Gestion d'écrans
 
-Application web React.js pour scanner et gérer des écrans avec des identifiants à 7 chiffres. Fonctionne entièrement en local sur le téléphone, sans connexion internet nécessaire après le premier chargement.
+Application web React.js pour scanner et gérer des écrans avec des codes-barres contenant des identifiants à 7 chiffres. Fonctionne entièrement en local sur le téléphone, sans connexion internet nécessaire après le premier chargement.
 
 ## ✨ Fonctionnalités
 
-- 📷 **Capture photo/vidéo** avec la caméra du smartphone (caméra arrière par défaut)
-- 🔍 **OCR en local** avec Tesseract.js pour détecter les identifiants à 7 chiffres
+- 📷 **Scan en temps réel** avec la caméra du smartphone (caméra arrière par défaut)
+- 🔍 **Détection de codes-barres** en direct avec ZXing.js pour lire les identifiants à 7 chiffres
 - ➕ **Ajout d'écrans** scannés avec date d'ajout
 - 🗑️ **Suppression d'écrans** de la liste
 - 💾 **Stockage local** (localStorage) - toutes les données restent sur votre appareil
@@ -46,12 +46,11 @@ Les fichiers seront générés dans le dossier `dist/`
    - Ouvrez l'application dans votre navigateur mobile (Chrome, Safari, etc.)
    - Autorisez l'accès à la caméra quand demandé
 
-2. **Scanner un écran :**
-   - Cliquez sur "📷 Scanner un écran"
-   - Pointez la caméra vers l'étiquette avec l'identifiant à 7 chiffres
-   - Cliquez sur "📸 Prendre une photo"
-   - Cliquez sur "🔍 Analyser" pour lancer l'OCR
-   - L'identifiant détecté s'affichera
+2. **Scanner un code-barres :**
+   - Cliquez sur "📷 Scanner un code-barres"
+   - Pointez la caméra vers le code-barres contenant l'identifiant à 7 chiffres
+   - La détection se fait automatiquement en temps réel
+   - L'identifiant détecté s'affichera automatiquement
    - Cliquez sur "✓ Confirmer" pour ajouter l'écran
 
 3. **Gérer les écrans :**
@@ -79,16 +78,16 @@ Une fois installée, l'application fonctionnera comme une app native et pourra �
 
 ## 🎯 Notes importantes
 
-- **Premier chargement :** La première fois, l'application doit télécharger les modèles OCR (environ 5-10 MB). Cela ne se produit qu'une seule fois.
 - **Permissions :** L'application nécessite l'accès à la caméra pour fonctionner.
 - **Stockage :** Toutes les données (écrans scannés) sont stockées localement sur votre appareil. Elles ne sont jamais envoyées sur internet.
-- **Performance OCR :** La détection peut prendre quelques secondes selon la qualité de l'image et la puissance de l'appareil.
+- **Détection en temps réel :** Le scan se fait automatiquement dès que le code-barres est visible dans le cadre de scan.
+- **Format des codes :** L'application détecte les codes-barres (EAN, Code 128, QR Code, etc.) et extrait les identifiants à 7 chiffres.
 
 ## 🛠️ Technologies
 
 - **React 18** - Framework UI
 - **Vite** - Build tool et serveur de développement
-- **Tesseract.js** - OCR côté client (fonctionne entièrement en local)
+- **ZXing.js** (@zxing/library) - Détection de codes-barres en temps réel (fonctionne entièrement en local)
 - **Vite PWA Plugin** - Configuration PWA et service worker
 - **localStorage** - Stockage local des données
 
@@ -114,10 +113,11 @@ ocr-scan/
 - Vérifiez que vous avez autorisé l'accès à la caméra dans les paramètres du navigateur
 - Assurez-vous d'utiliser HTTPS (ou localhost) - la caméra ne fonctionne pas en HTTP
 
-**L'OCR ne détecte pas l'identifiant :**
-- Assurez-vous que l'image est nette et bien éclairée
-- L'identifiant doit être clairement visible et lisible
-- Essayez de prendre la photo de plus près ou de plus loin
+**Le code-barres n'est pas détecté :**
+- Assurez-vous que le code-barres est bien visible et éclairé
+- Maintenez la caméra stable et pointez-la directement vers le code
+- Le code doit être dans le cadre de scan affiché à l'écran
+- Vérifiez que le code-barres n'est pas endommagé ou illisible
 
 **L'application ne s'installe pas en PWA :**
 - Vérifiez que vous utilisez un navigateur compatible (Chrome, Edge, Safari)
