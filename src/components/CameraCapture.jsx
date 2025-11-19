@@ -60,9 +60,9 @@ function CameraCapture({ onScanComplete, onCancel }) {
   }, [])
 
   const startScanning = () => {
-    if (!videoRef.current || !canvasRef.current || codeReaderRef.current) return
+    if (!videoRef.current || !canvasRef.current || codeReaderRef.current || !scanning) return
 
-    // Créer le lecteur de codes avec configuration optimisée
+    // Créer le lecteur de codes
     const codeReader = new BrowserMultiFormatReader()
     codeReaderRef.current = codeReader
 
@@ -106,16 +106,21 @@ function CameraCapture({ onScanComplete, onCancel }) {
               setTimeout(() => reject(new Error('Timeout')), 1000)
             })
             
-            // Analyser l'image avec ZXing (avec hints pour améliorer la détection)
-            const hints = new Map()
-            hints.set(DecodeHintType.TRY_HARDER, true)
-            hints.set(DecodeHintType.POSSIBLE_FORMATS, [
-              // Formats de codes-barres courants
-              'EAN_13', 'EAN_8', 'UPC_A', 'UPC_E', 
-              'CODE_128', 'CODE_39', 'CODE_93', 'ITF', 
-              'CODABAR', 'QR_CODE', 'DATA_MATRIX'
-            ])
-            const result = await codeReader.decodeFromImageElement(image, hints)
+            // Analyser l'image avec ZXing
+            // Essayer d'abord sans hints pour la compatibilité
+            let result = null
+            try {
+              result = await codeReader.decodeFromImageElement(image)
+            } catch (e) {
+              // Si ça échoue, essayer avec hints
+              try {
+                const hints = new Map()
+                hints.set(DecodeHintType.TRY_HARDER, true)
+                result = await codeReader.decodeFromImageElement(image, hints)
+              } catch (e2) {
+                throw e
+              }
+            }
             
             if (result) {
               const text = result.getText()
