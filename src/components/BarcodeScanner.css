@@ -85,6 +85,15 @@
   border-radius: 5px;
 }
 
+.last-scanned {
+  margin-top: 10px;
+  color: #4caf50;
+  font-family: monospace;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 5px;
+  border-radius: 4px;
+}
+
 .error-message {
   position: absolute;
   top: 20px;
