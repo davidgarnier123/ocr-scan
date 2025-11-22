@@ -14,6 +14,8 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
+  background: #111;
+  /* Placeholder bg */
 }
 
 /* Override html5-qrcode internal video styles if needed */
@@ -77,4 +79,40 @@
   padding: 10px 20px;
   border-radius: 5px;
   z-index: 100;
+}
+
+.scanner-controls {
+  position: absolute;
+  bottom: 30px;
+  z-index: 50;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.btn-start,
+.btn-stop {
+  padding: 15px 30px;
+  font-size: 1.2rem;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  transition: transform 0.1s;
+}
+
+.btn-start {
+  background-color: #4caf50;
+  color: white;
+}
+
+.btn-stop {
+  background-color: #f44336;
+  color: white;
+}
+
+.btn-start:active,
+.btn-stop:active {
+  transform: scale(0.95);
 }
