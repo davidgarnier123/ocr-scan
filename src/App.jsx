@@ -1,76 +1,34 @@
-import { useState, useEffect } from 'react'
-import CameraCapture from './components/CameraCapture'
-import ScreenList from './components/ScreenList'
+import { useState } from 'react'
+import BarcodeScanner from './components/BarcodeScanner'
 import './App.css'
 
 function App() {
-  const [screens, setScreens] = useState([])
-  const [showCamera, setShowCamera] = useState(false)
+  const [scannedCodes, setScannedCodes] = useState([])
 
-  // Charger les écrans depuis localStorage au démarrage
-  useEffect(() => {
-    const savedScreens = localStorage.getItem('ocr-screens')
-    if (savedScreens) {
-      try {
-        setScreens(JSON.parse(savedScreens))
-      } catch (e) {
-        console.error('Erreur lors du chargement des écrans:', e)
-      }
-    }
-  }, [])
-
-  // Sauvegarder les écrans dans localStorage
-  useEffect(() => {
-    if (screens.length >= 0) {
-      localStorage.setItem('ocr-screens', JSON.stringify(screens))
-    }
-  }, [screens])
-
-  const handleAddScreen = (screenId) => {
-    if (screenId && !screens.find(s => s.id === screenId)) {
-      const newScreen = {
-        id: screenId,
-        date: new Date().toISOString()
-      }
-      setScreens([...screens, newScreen])
-      setShowCamera(false)
-    }
-  }
-
-  const handleRemoveScreen = (screenId) => {
-    setScreens(screens.filter(s => s.id !== screenId))
+  const handleScan = (code) => {
+    setScannedCodes(prev => {
+      // Avoid duplicates if needed, or just add to top
+      if (prev.includes(code)) return prev;
+      return [code, ...prev];
+    })
   }
 
   return (
-    <div className="app">
-      <header className="app-header">
-        <h1>📱 Code Scanner</h1>
-        <p className="subtitle">Gestion d'écrans par code-barres</p>
-      </header>
+    <div className="app-container">
+      <BarcodeScanner onScan={handleScan} />
 
-      {!showCamera ? (
-        <div className="main-content">
-          <button 
-            className="btn-primary"
-            onClick={() => setShowCamera(true)}
-          >
-            📷 Scanner un code-barres
-          </button>
-          
-          <ScreenList 
-            screens={screens}
-            onRemove={handleRemoveScreen}
-          />
+      {scannedCodes.length > 0 && (
+        <div className="scanned-list-overlay">
+          <h3>Scanned Codes</h3>
+          <ul>
+            {scannedCodes.map((code, index) => (
+              <li key={index}>{code}</li>
+            ))}
+          </ul>
         </div>
-      ) : (
-        <CameraCapture 
-          onScanComplete={handleAddScreen}
-          onCancel={() => setShowCamera(false)}
-        />
       )}
     </div>
   )
 }
 
 export default App
-
