@@ -15,13 +15,15 @@
   height: 100%;
   overflow: hidden;
   background: #111;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* Override html5-qrcode internal video styles if needed */
-#reader video {
-  object-fit: cover !important;
-  width: 100% !important;
-  height: 100% !important;
+.scanner-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .scanner-overlay-ui {
@@ -39,8 +41,7 @@
 
 .scan-region-marker {
   width: 300px;
-  /* Wider for Code 128 */
-  height: 100px;
+  height: 150px;
   border: 2px solid rgba(255, 0, 0, 0.7);
   border-radius: 10px;
   box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);

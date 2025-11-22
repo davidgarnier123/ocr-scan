@@ -1,75 +1,89 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import './BarcodeScanner.css';
 
 const BarcodeScanner = ({ onScan }) => {
-  const scannerRef = useRef(null);
+  const videoRef = useRef(null);
   const [error, setError] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
+  const streamRef = useRef(null);
+  const requestRef = useRef(null);
 
   useEffect(() => {
-    // Create instance with verbose=false
-    // Restrict formats in constructor
-    const html5QrCode = new Html5Qrcode("reader", {
-      formatsToSupport: [Html5QrcodeSupportedFormats.CODE_128],
-      verbose: false
-    });
-    scannerRef.current = html5QrCode;
+    // Check support
+    if (!('BarcodeDetector' in window)) {
+      setError("BarcodeDetector API is not supported in this browser. Please use Chrome.");
+    }
 
     return () => {
-      if (scannerRef.current && scannerRef.current.isScanning) {
-        scannerRef.current.stop().then(() => {
-          scannerRef.current.clear();
-        }).catch(err => console.error("Error stopping scanner:", err));
-      }
+      stopScanning();
     };
   }, []);
 
-  const startScanning = async () => {
-    setError(null);
-    const config = {
-      fps: 15, // Increased FPS for better detection
-      qrbox: { width: 300, height: 100 }, // Wider box for Code 128
-      aspectRatio: 1.0,
-      videoConstraints: {
-        facingMode: "environment",
-        focusMode: "continuous" // Important for close-up scanning
-      }
-    };
+  const detectBarcode = async (detector) => {
+    if (!videoRef.current || !isScanning) return;
 
     try {
-      await scannerRef.current.start(
-        { facingMode: "environment" },
-        config,
-        (decodedText, decodedResult) => {
-          if (decodedText) {
-            // Robust validation for Code 128 (7 digits)
-            if (decodedText.length === 7 && /^\d+$/.test(decodedText)) {
-              console.log("Valid Scan:", decodedText);
-              onScan(decodedText);
-            }
-          }
-        },
-        (errorMessage) => {
-          // ignore
+      const barcodes = await detector.detect(videoRef.current);
+      if (barcodes.length > 0) {
+        const code = barcodes[0].rawValue;
+        if (code && code.length === 7 && /^\d+$/.test(code)) {
+          console.log("Valid Scan:", code);
+          onScan(code);
+          // Optional: throttle or visual feedback could be added here
         }
-      );
-      setIsScanning(true);
+      }
     } catch (err) {
-      console.error("Error starting scanner:", err);
+      console.error("Detection error:", err);
+    }
+
+    if (isScanning) {
+      requestRef.current = requestAnimationFrame(() => detectBarcode(detector));
+    }
+  };
+
+  const startScanning = async () => {
+    setError(null);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: "environment",
+          focusMode: "continuous",
+          width: { ideal: 1920 },
+          height: { ideal: 1080 }
+        }
+      });
+
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+
+        setIsScanning(true);
+
+        const detector = new window.BarcodeDetector({
+          formats: ['code_128']
+        });
+
+        requestRef.current = requestAnimationFrame(() => detectBarcode(detector));
+      }
+    } catch (err) {
+      console.error("Error starting camera:", err);
       setError("Camera error: " + (err.message || err));
       setIsScanning(false);
     }
   };
 
-  const stopScanning = async () => {
-    if (scannerRef.current && isScanning) {
-      try {
-        await scannerRef.current.stop();
-        setIsScanning(false);
-      } catch (err) {
-        console.error("Error stopping scanner:", err);
-      }
+  const stopScanning = () => {
+    setIsScanning(false);
+    if (requestRef.current) {
+      cancelAnimationFrame(requestRef.current);
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
     }
   };
 
@@ -77,7 +91,9 @@ const BarcodeScanner = ({ onScan }) => {
     <div className="scanner-container">
       {error && <div className="error-message">{error}</div>}
 
-      <div id="reader" className="scanner-video-container"></div>
+      <div className="scanner-video-container">
+        <video ref={videoRef} className="scanner-video" playsInline muted autoPlay></video>
+      </div>
 
       {isScanning && (
         <div className="scanner-overlay-ui">
