@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Html5Qrcode } from 'html5-qrcode';
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import './BarcodeScanner.css';
 
 const BarcodeScanner = ({ onScan }) => {
@@ -8,8 +8,12 @@ const BarcodeScanner = ({ onScan }) => {
   const [isScanning, setIsScanning] = useState(false);
 
   useEffect(() => {
-    // Create instance
-    const html5QrCode = new Html5Qrcode("reader");
+    // Create instance with verbose=false
+    // Restrict formats in constructor
+    const html5QrCode = new Html5Qrcode("reader", {
+      formatsToSupport: [Html5QrcodeSupportedFormats.CODE_128],
+      verbose: false
+    });
     scannerRef.current = html5QrCode;
 
     return () => {
@@ -24,11 +28,12 @@ const BarcodeScanner = ({ onScan }) => {
   const startScanning = async () => {
     setError(null);
     const config = {
-      fps: 10,
-      qrbox: { width: 250, height: 150 },
+      fps: 15, // Increased FPS for better detection
+      qrbox: { width: 300, height: 100 }, // Wider box for Code 128
       aspectRatio: 1.0,
-      experimentalFeatures: {
-        useBarCodeDetectorIfSupported: true
+      videoConstraints: {
+        facingMode: "environment",
+        focusMode: "continuous" // Important for close-up scanning
       }
     };
 
@@ -38,6 +43,7 @@ const BarcodeScanner = ({ onScan }) => {
         config,
         (decodedText, decodedResult) => {
           if (decodedText) {
+            // Robust validation for Code 128 (7 digits)
             if (decodedText.length === 7 && /^\d+$/.test(decodedText)) {
               console.log("Valid Scan:", decodedText);
               onScan(decodedText);
