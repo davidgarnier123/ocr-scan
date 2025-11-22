@@ -1,98 +1,73 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { BrowserMultiFormatReader, NotFoundException, BarcodeFormat, DecodeHintType } from '@zxing/library';
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import './BarcodeScanner.css';
 
 const BarcodeScanner = ({ onScan }) => {
-  const videoRef = useRef(null);
+  const scannerRef = useRef(null);
   const [error, setError] = useState(null);
-  const [selectedDeviceId, setSelectedDeviceId] = useState(null);
-  const [videoInputDevices, setVideoInputDevices] = useState([]);
+  const [isScanning, setIsScanning] = useState(false);
 
   useEffect(() => {
-    const codeReader = new BrowserMultiFormatReader();
-    
-    // Configure hints to prioritize Code 128
-    const hints = new Map();
-    hints.set(DecodeHintType.POSSIBLE_FORMATS, [BarcodeFormat.CODE_128]);
-    hints.set(DecodeHintType.TRY_HARDER, true);
+    // Create instance
+    const html5QrCode = new Html5Qrcode("reader");
+    scannerRef.current = html5QrCode;
 
-    console.log('Initializing scanner...');
+    const config = {
+      fps: 10,
+      qrbox: { width: 250, height: 150 }, // Rectangular box for barcodes
+      aspectRatio: 1.0,
+      experimentalFeatures: {
+        useBarCodeDetectorIfSupported: true
+      }
+    };
 
-    codeReader.listVideoInputDevices()
-      .then((videoInputDevices) => {
-        setVideoInputDevices(videoInputDevices);
-        if (videoInputDevices.length > 0) {
-          // Prefer back camera if available
-          const backCamera = videoInputDevices.find(device => device.label.toLowerCase().includes('back') || device.label.toLowerCase().includes('rear'));
-          const deviceId = backCamera ? backCamera.deviceId : videoInputDevices[0].deviceId;
-          setSelectedDeviceId(deviceId);
-        } else {
-          setError('No video input devices found');
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        setError('Error listing video devices: ' + err.message);
-      });
+    const startScanning = async () => {
+      try {
+        await html5QrCode.start(
+          { facingMode: "environment" }, // Prefer back camera
+          config,
+          (decodedText, decodedResult) => {
+            // Success callback
+            if (decodedText) {
+              // Robust validation for Code 128 (7 digits)
+              if (decodedText.length === 7 && /^\d+$/.test(decodedText)) {
+                console.log("Valid Scan:", decodedText);
+                onScan(decodedText);
+              } else {
+                console.log("Ignored Scan (invalid format):", decodedText);
+              }
+            }
+          },
+          (errorMessage) => {
+            // Error callback (scanning in progress, usually ignored)
+            // console.log(errorMessage);
+          }
+        );
+        setIsScanning(true);
+      } catch (err) {
+        console.error("Error starting scanner:", err);
+        setError("Camera error: " + (err.message || err));
+      }
+    };
+
+    startScanning();
 
     return () => {
-      codeReader.reset();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!selectedDeviceId) return;
-
-    const codeReader = new BrowserMultiFormatReader();
-    const hints = new Map();
-    hints.set(DecodeHintType.POSSIBLE_FORMATS, [BarcodeFormat.CODE_128]);
-    // hints.set(DecodeHintType.TRY_HARDER, true); // Can be resource intensive, enable if needed
-
-    console.log(`Starting scan on device: ${selectedDeviceId}`);
-
-    codeReader.decodeFromVideoDevice(selectedDeviceId, videoRef.current, (result, err) => {
-      if (result) {
-        const text = result.getText();
-        // Validation: 7 digits
-        if (text.length === 7 && /^\d+$/.test(text)) {
-          console.log('Valid scan:', text);
-          onScan(text);
-        } else {
-            console.log('Ignored scan (invalid format):', text);
-        }
+      if (scannerRef.current && scannerRef.current.isScanning) {
+        scannerRef.current.stop().then(() => {
+          scannerRef.current.clear();
+        }).catch(err => console.error("Error stopping scanner:", err));
       }
-      if (err && !(err instanceof NotFoundException)) {
-        console.error(err);
-      }
-    });
-
-    return () => {
-      console.log('Stopping scan...');
-      codeReader.reset();
     };
-  }, [selectedDeviceId, onScan]);
+  }, [onScan]);
 
   return (
     <div className="scanner-container">
       {error && <div className="error-message">{error}</div>}
-      <div className="video-wrapper">
-        <video ref={videoRef} className="scanner-video" />
-        <div className="scanner-overlay">
-          <div className="scanner-line"></div>
-        </div>
-      </div>
-      <div className="controls">
-        <select 
-            onChange={(e) => setSelectedDeviceId(e.target.value)} 
-            value={selectedDeviceId || ''}
-            className="device-select"
-        >
-            {videoInputDevices.map((device, index) => (
-                <option key={device.deviceId} value={device.deviceId}>
-                    {device.label || `Camera ${index + 1}`}
-                </option>
-            ))}
-        </select>
+      <div id="reader" className="scanner-video-container"></div>
+      <div className="scanner-overlay-ui">
+        <div className="scan-region-marker"></div>
+        <p className="scanner-instruction">Scan 7-digit Code 128</p>
       </div>
     </div>
   );
