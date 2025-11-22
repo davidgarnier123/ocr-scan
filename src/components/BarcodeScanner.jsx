@@ -1,14 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
-import './BarcodeScanner.css';
-
-const BarcodeScanner = ({ onScan }) => {
-  const scannerRef = useRef(null);
-  const [error, setError] = useState(null);
-  const [isScanning, setIsScanning] = useState(false);
-  ```javascript
-import React, { useEffect, useRef, useState } from 'react';
-import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
+import { Html5Qrcode } from 'html5-qrcode';
 import './BarcodeScanner.css';
 
 const BarcodeScanner = ({ onScan }) => {
@@ -47,12 +38,10 @@ const BarcodeScanner = ({ onScan }) => {
         config,
         (decodedText, decodedResult) => {
           if (decodedText) {
-              if (decodedText.length === 7 && /^\d+$/.test(decodedText)) {
-                  console.log("Valid Scan:", decodedText);
-                  onScan(decodedText);
-                  // Optional: stop after successful scan? User didn't ask, but maybe good UX. keeping it continuous for now as per "scanner" usually implies.
-                  // Actually, let's keep it continuous unless user asks otherwise, but maybe add a beep or visual feedback.
-              }
+            if (decodedText.length === 7 && /^\d+$/.test(decodedText)) {
+              console.log("Valid Scan:", decodedText);
+              onScan(decodedText);
+            }
           }
         },
         (errorMessage) => {
@@ -68,39 +57,38 @@ const BarcodeScanner = ({ onScan }) => {
   };
 
   const stopScanning = async () => {
-      if (scannerRef.current && isScanning) {
-          try {
-              await scannerRef.current.stop();
-              // scannerRef.current.clear(); // clear removes the video element, might want to keep container
-              setIsScanning(false);
-          } catch (err) {
-              console.error("Error stopping scanner:", err);
-          }
+    if (scannerRef.current && isScanning) {
+      try {
+        await scannerRef.current.stop();
+        setIsScanning(false);
+      } catch (err) {
+        console.error("Error stopping scanner:", err);
       }
+    }
   };
 
   return (
     <div className="scanner-container">
       {error && <div className="error-message">{error}</div>}
-      
+
       <div id="reader" className="scanner-video-container"></div>
-      
+
       {isScanning && (
         <div className="scanner-overlay-ui">
-            <div className="scan-region-marker"></div>
-            <p className="scanner-instruction">Scan 7-digit Code 128</p>
+          <div className="scan-region-marker"></div>
+          <p className="scanner-instruction">Scan 7-digit Code 128</p>
         </div>
       )}
 
       <div className="scanner-controls">
         {!isScanning ? (
-            <button className="btn-start" onClick={startScanning}>
-                📷 Start Scanner
-            </button>
+          <button className="btn-start" onClick={startScanning}>
+            📷 Start Scanner
+          </button>
         ) : (
-            <button className="btn-stop" onClick={stopScanning}>
-                ⏹ Stop Scanner
-            </button>
+          <button className="btn-stop" onClick={stopScanning}>
+            ⏹ Stop Scanner
+          </button>
         )}
       </div>
     </div>
