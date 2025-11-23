@@ -209,8 +209,16 @@ const BarcodeScanner = ({ onScan }) => {
       {isScanning && (
         <div className="scanner-overlay-ui">
           <div className="scan-region-marker"></div>
-          <p className="scanner-instruction">
-            {usingNative ? "⚡ Native Scanner Active" : "📷 Web Scanner Active"}
+          <p
+            className="scanner-instruction"
+            onClick={() => {
+              if ('BarcodeDetector' in window) {
+                setUsingNative(!usingNative);
+              }
+            }}
+            style={{ cursor: 'BarcodeDetector' in window ? 'pointer' : 'default' }}
+          >
+            {usingNative ? "⚡ Native Scanner Active (Tap to switch)" : "📷 Web Scanner Active (Tap to switch)"}
           </p>
           <p className="scanner-sub-instruction">Scan Code 128 or Code 39</p>
 
