@@ -11,14 +11,13 @@ const BarcodeScanner = ({ onScan }) => {
 
   const [usingNative, setUsingNative] = useState(false);
 
-  const scanIntervalRef = useRef(null);
-  const nativeDetectorRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   const startScanning = async () => {
     setError(null);
     try {
       // Check for Native BarcodeDetector
-      if ('BarcodeDetector' in window) {
+      if ('BarcodeDetector' in window && !nativeDetectorRef.current) {
         try {
           const formats = await window.BarcodeDetector.getSupportedFormats();
           if (formats.includes('code_128') || formats.includes('code_39')) {
@@ -44,8 +43,6 @@ const BarcodeScanner = ({ onScan }) => {
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
 
-
-
         videoRef.current.onloadedmetadata = () => {
           videoRef.current.play();
           setIsScanning(true);
@@ -56,6 +53,75 @@ const BarcodeScanner = ({ onScan }) => {
       console.error("Error accessing camera:", err);
       setError("Camera error: " + (err.message || err));
     }
+  };
+
+  const detectFromSource = async (source, canvas, ctx) => {
+    try {
+      let detectedCode = null;
+
+      if (usingNative && nativeDetectorRef.current) {
+        // --- NATIVE DETECTION ---
+        try {
+          const barcodes = await nativeDetectorRef.current.detect(source);
+          if (barcodes.length > 0) {
+            const barcode = barcodes[0];
+            detectedCode = barcode.rawValue;
+
+            // Draw box
+            if (barcode.boundingBox) {
+              ctx.beginPath();
+              ctx.lineWidth = 4;
+              ctx.strokeStyle = "#00FF00";
+              ctx.rect(
+                barcode.boundingBox.x,
+                barcode.boundingBox.y,
+                barcode.boundingBox.width,
+                barcode.boundingBox.height
+              );
+              ctx.stroke();
+            }
+          }
+        } catch (err) {
+          // Native failed
+          console.warn("Native detection error:", err);
+        }
+      } else {
+        // --- ZBAR WASM DETECTION ---
+        // Ensure we have image data from the canvas
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const results = await zbarWasm.scanImageData(imageData);
+        if (results.length > 0) {
+          const result = results[0];
+          detectedCode = result.decode ? result.decode() : result.data;
+
+          // Draw box
+          if (result.points && result.points.length > 0) {
+            ctx.beginPath();
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = "#00FF00";
+            const points = result.points;
+            ctx.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < points.length; i++) {
+              ctx.lineTo(points[i].x, points[i].y);
+            }
+            ctx.closePath();
+            ctx.stroke();
+          }
+        }
+      }
+
+      if (detectedCode) {
+        console.log("Detected:", detectedCode);
+        setLastScanned(detectedCode);
+        if (detectedCode.length >= 3) {
+          onScan(detectedCode);
+        }
+        return true;
+      }
+    } catch (scanErr) {
+      console.error("Scan error:", scanErr);
+    }
+    return false;
   };
 
   const scanFrame = async () => {
@@ -72,75 +138,56 @@ const BarcodeScanner = ({ onScan }) => {
       // Draw video to canvas
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      try {
-        let detectedCode = null;
-
-        if (usingNative && nativeDetectorRef.current) {
-          // --- NATIVE DETECTION ---
-          try {
-            const barcodes = await nativeDetectorRef.current.detect(video); // Can detect directly from video
-            if (barcodes.length > 0) {
-              const barcode = barcodes[0];
-              detectedCode = barcode.rawValue;
-
-              // Draw box
-              if (barcode.boundingBox) {
-                ctx.beginPath();
-                ctx.lineWidth = 4;
-                ctx.strokeStyle = "#00FF00";
-                ctx.rect(
-                  barcode.boundingBox.x,
-                  barcode.boundingBox.y,
-                  barcode.boundingBox.width,
-                  barcode.boundingBox.height
-                );
-                ctx.stroke();
-              }
-            }
-          } catch (err) {
-            // Native failed, continue to next frame
-            console.warn("Native detection error:", err);
-          }
-        } else {
-          // --- ZBAR WASM DETECTION ---
-          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          const results = await zbarWasm.scanImageData(imageData);
-          if (results.length > 0) {
-            const result = results[0];
-            detectedCode = result.decode ? result.decode() : result.data;
-
-            // Draw box
-            if (result.points && result.points.length > 0) {
-              ctx.beginPath();
-              ctx.lineWidth = 4;
-              ctx.strokeStyle = "#00FF00";
-              const points = result.points;
-              ctx.moveTo(points[0].x, points[0].y);
-              for (let i = 1; i < points.length; i++) {
-                ctx.lineTo(points[i].x, points[i].y);
-              }
-              ctx.closePath();
-              ctx.stroke();
-            }
-          }
-        }
-
-        if (detectedCode) {
-          console.log("Detected:", detectedCode);
-          setLastScanned(detectedCode);
-          if (detectedCode.length >= 3) {
-            onScan(detectedCode);
-          }
-        }
-
-      } catch (scanErr) {
-        console.error("Scan error:", scanErr);
-      }
+      // Detect
+      await detectFromSource(video, canvas, ctx);
     }
 
     // Schedule next scan
     if (isScanning) {
       scanIntervalRef.current = requestAnimationFrame(scanFrame);
+    }
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Stop live scanning if active
+    if (isScanning) {
+      stopScanning();
+    }
+
+    setError(null);
+    setLastScanned(null);
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = async () => {
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext('2d');
+
+        // Resize canvas to match image
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        // Draw image
+        ctx.drawImage(img, 0, 0);
+
+        // Detect
+        const found = await detectFromSource(img, canvas, ctx);
+        if (!found) {
+          setError("No barcode detected in image.");
+        }
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const triggerFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
     }
   };
 
@@ -177,8 +224,8 @@ const BarcodeScanner = ({ onScan }) => {
       {error && <div className="error-message">{error}</div>}
 
       <div className="scanner-video-container">
-        <video ref={videoRef} playsInline muted></video>
-        <canvas ref={canvasRef} className="drawing-canvas"></canvas>
+        <video ref={videoRef} playsInline muted style={{ display: isScanning ? 'block' : 'none' }}></video>
+        <canvas ref={canvasRef} className="drawing-canvas" style={{ display: isScanning ? 'absolute' : 'block' }}></canvas>
       </div>
 
       {isScanning && (
@@ -194,10 +241,24 @@ const BarcodeScanner = ({ onScan }) => {
       )}
 
       <div className="scanner-controls">
+        <input
+          type="file"
+          accept="image/*"
+          capture="environment"
+          ref={fileInputRef}
+          style={{ display: 'none' }}
+          onChange={handleFileUpload}
+        />
+
         {!isScanning ? (
-          <button className="btn-start" onClick={startScanning}>
-            📷 Start Scanner
-          </button>
+          <>
+            <button className="btn-start" onClick={startScanning}>
+              📷 Start Scanner
+            </button>
+            <button className="btn-photo" onClick={triggerFileInput}>
+              🖼️ Take Photo
+            </button>
+          </>
         ) : (
           <>
             <button className="btn-stop" onClick={stopScanning}>
