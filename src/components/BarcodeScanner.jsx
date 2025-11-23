@@ -1,6 +1,5 @@
-```javascript
 import React, { useEffect, useRef, useState } from 'react';
-import zbarWasm from '@undecaf/zbar-wasm';
+import * as zbarWasm from '@undecaf/zbar-wasm';
 import './BarcodeScanner.css';
 
 const BarcodeScanner = ({ onScan }) => {
@@ -12,7 +11,7 @@ const BarcodeScanner = ({ onScan }) => {
   const [zoom, setZoom] = useState(1);
   const [zoomCap, setZoomCap] = useState({ min: 1, max: 1, step: 0.1 });
   const [usingNative, setUsingNative] = useState(false);
-  
+
   const scanIntervalRef = useRef(null);
   const nativeDetectorRef = useRef(null);
 
@@ -24,11 +23,11 @@ const BarcodeScanner = ({ onScan }) => {
         try {
           const formats = await window.BarcodeDetector.getSupportedFormats();
           if (formats.includes('code_128') || formats.includes('code_39')) {
-             nativeDetectorRef.current = new window.BarcodeDetector({ 
-               formats: ['code_128', 'code_39'] 
-             });
-             setUsingNative(true);
-             console.log("Using Native BarcodeDetector");
+            nativeDetectorRef.current = new window.BarcodeDetector({
+              formats: ['code_128', 'code_39']
+            });
+            setUsingNative(true);
+            console.log("Using Native BarcodeDetector");
           }
         } catch (e) {
           console.warn("Native BarcodeDetector failed, falling back to ZBar", e);
@@ -45,7 +44,7 @@ const BarcodeScanner = ({ onScan }) => {
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        
+
         // Setup Zoom
         const track = stream.getVideoTracks()[0];
         const capabilities = track.getCapabilities ? track.getCapabilities() : {};
@@ -73,7 +72,7 @@ const BarcodeScanner = ({ onScan }) => {
   const handleZoomChange = (e) => {
     const newZoom = parseFloat(e.target.value);
     setZoom(newZoom);
-    
+
     if (videoRef.current && videoRef.current.srcObject) {
       const track = videoRef.current.srcObject.getVideoTracks()[0];
       if (track && track.applyConstraints) {
@@ -94,7 +93,7 @@ const BarcodeScanner = ({ onScan }) => {
     if (video.readyState === video.HAVE_ENOUGH_DATA) {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
-      
+
       // Draw video to canvas
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
@@ -108,16 +107,16 @@ const BarcodeScanner = ({ onScan }) => {
             if (barcodes.length > 0) {
               const barcode = barcodes[0];
               detectedCode = barcode.rawValue;
-              
+
               // Draw box
               if (barcode.boundingBox) {
                 ctx.beginPath();
                 ctx.lineWidth = 4;
                 ctx.strokeStyle = "#00FF00";
                 ctx.rect(
-                  barcode.boundingBox.x, 
-                  barcode.boundingBox.y, 
-                  barcode.boundingBox.width, 
+                  barcode.boundingBox.x,
+                  barcode.boundingBox.y,
+                  barcode.boundingBox.width,
                   barcode.boundingBox.height
                 );
                 ctx.stroke();
@@ -134,29 +133,29 @@ const BarcodeScanner = ({ onScan }) => {
           if (results.length > 0) {
             const result = results[0];
             detectedCode = result.decode ? result.decode() : result.data;
-            
+
             // Draw box
             if (result.points && result.points.length > 0) {
-               ctx.beginPath();
-               ctx.lineWidth = 4;
-               ctx.strokeStyle = "#00FF00";
-               const points = result.points;
-               ctx.moveTo(points[0].x, points[0].y);
-               for (let i = 1; i < points.length; i++) {
-                 ctx.lineTo(points[i].x, points[i].y);
-               }
-               ctx.closePath();
-               ctx.stroke();
+              ctx.beginPath();
+              ctx.lineWidth = 4;
+              ctx.strokeStyle = "#00FF00";
+              const points = result.points;
+              ctx.moveTo(points[0].x, points[0].y);
+              for (let i = 1; i < points.length; i++) {
+                ctx.lineTo(points[i].x, points[i].y);
+              }
+              ctx.closePath();
+              ctx.stroke();
             }
           }
         }
 
         if (detectedCode) {
-           console.log("Detected:", detectedCode);
-           setLastScanned(detectedCode);
-           if (detectedCode.length >= 3) {
-              onScan(detectedCode);
-           }
+          console.log("Detected:", detectedCode);
+          setLastScanned(detectedCode);
+          if (detectedCode.length >= 3) {
+            onScan(detectedCode);
+          }
         }
 
       } catch (scanErr) {
@@ -175,7 +174,7 @@ const BarcodeScanner = ({ onScan }) => {
     if (scanIntervalRef.current) {
       cancelAnimationFrame(scanIntervalRef.current);
     }
-    
+
     if (videoRef.current && videoRef.current.srcObject) {
       const tracks = videoRef.current.srcObject.getTracks();
       tracks.forEach(track => track.stop());
@@ -191,10 +190,10 @@ const BarcodeScanner = ({ onScan }) => {
 
   useEffect(() => {
     if (isScanning && !scanIntervalRef.current) {
-       scanFrame();
+      scanFrame();
     } else if (!isScanning && scanIntervalRef.current) {
-       cancelAnimationFrame(scanIntervalRef.current);
-       scanIntervalRef.current = null;
+      cancelAnimationFrame(scanIntervalRef.current);
+      scanIntervalRef.current = null;
     }
   }, [isScanning]);
 
@@ -214,18 +213,18 @@ const BarcodeScanner = ({ onScan }) => {
             {usingNative ? "⚡ Native Scanner Active" : "📷 Web Scanner Active"}
           </p>
           <p className="scanner-sub-instruction">Scan Code 128 or Code 39</p>
-          
+
           {/* Zoom Control */}
           {zoomCap.max > 1 && (
             <div className="zoom-control">
               <span>1x</span>
-              <input 
-                type="range" 
-                min={zoomCap.min} 
-                max={zoomCap.max} 
-                step={zoomCap.step} 
-                value={zoom} 
-                onChange={handleZoomChange} 
+              <input
+                type="range"
+                min={zoomCap.min}
+                max={zoomCap.max}
+                step={zoomCap.step}
+                value={zoom}
+                onChange={handleZoomChange}
               />
               <span>{zoomCap.max}x</span>
             </div>
@@ -251,4 +250,3 @@ const BarcodeScanner = ({ onScan }) => {
 };
 
 export default BarcodeScanner;
-```
