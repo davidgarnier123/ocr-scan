@@ -1,118 +1,134 @@
 import React, { useEffect, useRef, useState } from 'react';
-import Quagga from '@ericblade/quagga2';
+import zbarWasm from '@undecaf/zbar-wasm';
 import './BarcodeScanner.css';
 
 const BarcodeScanner = ({ onScan }) => {
-  const scannerRef = useRef(null);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
   const [error, setError] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
   const [lastScanned, setLastScanned] = useState(null);
+  const scanIntervalRef = useRef(null);
 
   const startScanning = async () => {
     setError(null);
-
     try {
-      await Quagga.init({
-        inputStream: {
-          name: "Live",
-          type: "LiveStream",
-          target: scannerRef.current,
-          constraints: {
-            width: { min: 640, ideal: 1280, max: 1920 },
-            height: { min: 480, ideal: 720, max: 1080 },
-            facingMode: "environment",
-            aspectRatio: { min: 1, max: 2 }
-          },
-        },
-        locator: {
-          patchSize: "medium",
-          halfSample: false, // Better for small barcodes
-        },
-        numOfWorkers: navigator.hardwareConcurrency || 4,
-        decoder: {
-          readers: ["code_128_reader", "code_39_reader"],
-          debug: {
-            drawBoundingBox: true,
-            showFrequency: true,
-            drawScanline: true,
-            showPattern: true
-          },
-        },
-        locate: true,
-      }, (err) => {
-        if (err) {
-          console.error("Error starting Quagga:", err);
-          setError("Camera error: " + (err.message || err));
-          return;
-        }
-        Quagga.start();
-        setIsScanning(true);
-      });
-
-      Quagga.onProcessed((result) => {
-        const drawingCtx = Quagga.canvas.ctx.overlay;
-        const drawingCanvas = Quagga.canvas.dom.overlay;
-
-        if (result) {
-          if (result.boxes) {
-            drawingCtx.clearRect(0, 0, parseInt(drawingCanvas.getAttribute("width")), parseInt(drawingCanvas.getAttribute("height")));
-            result.boxes.filter((box) => box !== result.box).forEach((box) => {
-              Quagga.ImageDebug.drawPath(box, { x: 0, y: 1 }, drawingCtx, { color: "green", lineWidth: 2 });
-            });
-          }
-
-          if (result.box) {
-            Quagga.ImageDebug.drawPath(result.box, { x: 0, y: 1 }, drawingCtx, { color: "#00F", lineWidth: 2 });
-          }
-
-          if (result.codeResult && result.codeResult.code) {
-            Quagga.ImageDebug.drawPath(result.line, { x: 'x', y: 'y' }, drawingCtx, { color: 'red', lineWidth: 3 });
-          }
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: "environment",
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
         }
       });
 
-      Quagga.onDetected((data) => {
-        if (data && data.codeResult && data.codeResult.code) {
-          const code = data.codeResult.code;
-          console.log("Raw Scan:", code, "Confidence:", data.codeResult.confidence);
-          setLastScanned(code); // Show user what was seen
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        // Wait for video to be ready
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current.play();
+          setIsScanning(true);
+          scanFrame();
+        };
+      }
+    } catch (err) {
+      console.error("Error accessing camera:", err);
+      setError("Camera error: " + (err.message || err));
+    }
+  };
 
-          // Removed strict 7-digit restriction
-          if (code.length >= 3) {
-            console.log("Valid Scan:", code);
+  const scanFrame = async () => {
+    if (!videoRef.current || !canvasRef.current || !isScanning) return;
+
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+      try {
+        const results = await zbarWasm.scanImageData(imageData);
+        if (results.length > 0) {
+          const result = results[0];
+          // ZBar returns data as Uint8Array or similar, need to decode if it's not a string
+          // @undecaf/zbar-wasm usually returns objects with decode() method or 'data' property
+          const code = result.decode ? result.decode() : result.data;
+          const type = result.typeName;
+
+          console.log("Detected:", code, "Type:", type);
+          setLastScanned(code);
+
+          // Draw bounding box
+          if (result.points && result.points.length > 0) {
+            ctx.beginPath();
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = "green";
+            const points = result.points;
+            ctx.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < points.length; i++) {
+              ctx.lineTo(points[i].x, points[i].y);
+            }
+            ctx.closePath();
+            ctx.stroke();
+          }
+
+          if (code && code.length >= 3) {
             onScan(code);
           }
         }
-      });
+      } catch (scanErr) {
+        console.error("Scan error:", scanErr);
+      }
+    }
 
-    } catch (err) {
-      console.error("Unexpected error:", err);
-      setError("Error: " + err.message);
+    // Schedule next scan
+    if (isScanning) {
+      scanIntervalRef.current = requestAnimationFrame(scanFrame);
     }
   };
 
   const stopScanning = () => {
-    try {
-      Quagga.stop();
-      setIsScanning(false);
-      // Quagga.offDetected(); // Clean up listeners if needed, but stop() usually handles it
-    } catch (err) {
-      console.error("Error stopping Quagga:", err);
+    setIsScanning(false);
+    if (scanIntervalRef.current) {
+      cancelAnimationFrame(scanIntervalRef.current);
+    }
+
+    if (videoRef.current && videoRef.current.srcObject) {
+      const tracks = videoRef.current.srcObject.getTracks();
+      tracks.forEach(track => track.stop());
+      videoRef.current.srcObject = null;
     }
   };
 
   useEffect(() => {
+    // Start scanning loop when isScanning becomes true is handled in startScanning
+    // But we need to ensure we stop when component unmounts
     return () => {
       stopScanning();
     };
   }, []);
 
+  // Re-trigger scan loop if isScanning is true (e.g. after a pause, though we handle it in startScanning)
+  useEffect(() => {
+    if (isScanning && !scanIntervalRef.current) {
+      scanFrame();
+    } else if (!isScanning && scanIntervalRef.current) {
+      cancelAnimationFrame(scanIntervalRef.current);
+      scanIntervalRef.current = null;
+    }
+  }, [isScanning]);
+
   return (
     <div className="scanner-container">
       {error && <div className="error-message">{error}</div>}
 
-      <div ref={scannerRef} className="scanner-video-container">
-        {/* Quagga injects video and canvas here */}
+      <div className="scanner-video-container">
+        <video ref={videoRef} playsInline muted></video>
+        <canvas ref={canvasRef} className="drawing-canvas"></canvas>
       </div>
 
       {isScanning && (
