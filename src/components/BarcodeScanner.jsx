@@ -5,6 +5,8 @@ import './BarcodeScanner.css';
 const BarcodeScanner = ({ onScan }) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const scanIntervalRef = useRef(null);
+  const nativeDetectorRef = useRef(null);
   const [error, setError] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
   const [lastScanned, setLastScanned] = useState(null);
