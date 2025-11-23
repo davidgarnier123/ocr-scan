@@ -30,7 +30,7 @@ const BarcodeScanner = ({ onScan }) => {
         },
         numOfWorkers: navigator.hardwareConcurrency || 4,
         decoder: {
-          readers: ["code_128_reader"],
+          readers: ["code_128_reader", "code_39_reader"],
           debug: {
             drawBoundingBox: true,
             showFrequency: true,
@@ -77,8 +77,8 @@ const BarcodeScanner = ({ onScan }) => {
           console.log("Raw Scan:", code, "Confidence:", data.codeResult.confidence);
           setLastScanned(code); // Show user what was seen
 
-          // Robust validation for Code 128 (7 digits)
-          if (code.length === 7 && /^\d+$/.test(code)) {
+          // Removed strict 7-digit restriction
+          if (code.length >= 3) {
             console.log("Valid Scan:", code);
             onScan(code);
           }
@@ -118,7 +118,7 @@ const BarcodeScanner = ({ onScan }) => {
       {isScanning && (
         <div className="scanner-overlay-ui">
           <div className="scan-region-marker"></div>
-          <p className="scanner-instruction">Scan 7-digit Code 128</p>
+          <p className="scanner-instruction">Scan Code 128 or Code 39</p>
           {lastScanned && <p className="last-scanned">Last seen: {lastScanned}</p>}
         </div>
       )}
