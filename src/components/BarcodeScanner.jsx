@@ -2,43 +2,64 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as zbarWasm from '@undecaf/zbar-wasm';
 import './BarcodeScanner.css';
 
-const BarcodeScanner = ({ onScan }) => {
+const BarcodeScanner = ({ onScan, settings }) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const scanIntervalRef = useRef(null);
   const nativeDetectorRef = useRef(null);
+  const lastScanTimeRef = useRef(0);
   const [error, setError] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
   const [lastScanned, setLastScanned] = useState(null);
 
-  const [usingNative, setUsingNative] = useState(false);
-
   const fileInputRef = useRef(null);
+
+  // Re-initialize scanner when settings change (if scanning)
+  useEffect(() => {
+    if (isScanning) {
+      stopScanning();
+      startScanning();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settings.useNative, settings.resolution, settings.formats]);
 
   const startScanning = async () => {
     setError(null);
     try {
-      // Check for Native BarcodeDetector
-      if ('BarcodeDetector' in window && !nativeDetectorRef.current) {
+      // Check for Native BarcodeDetector if enabled
+      if (settings.useNative && 'BarcodeDetector' in window) {
         try {
-          const formats = await window.BarcodeDetector.getSupportedFormats();
-          if (formats.includes('code_128') || formats.includes('code_39')) {
+          const supportedFormats = await window.BarcodeDetector.getSupportedFormats();
+          const formatsToUse = settings.formats.filter(f => supportedFormats.includes(f));
+
+          if (formatsToUse.length > 0) {
             nativeDetectorRef.current = new window.BarcodeDetector({
-              formats: ['code_128', 'code_39']
+              formats: formatsToUse
             });
-            setUsingNative(true);
-            console.log("Using Native BarcodeDetector");
+            console.log("Using Native BarcodeDetector with formats:", formatsToUse);
+          } else {
+            console.warn("No requested formats supported by Native Detector");
+            // Fallback or just warn? For now, we stick to user preference but maybe show error.
           }
         } catch (e) {
-          console.warn("Native BarcodeDetector failed, falling back to ZBar", e);
+          console.warn("Native BarcodeDetector failed init", e);
         }
       }
+
+      const resolutionMap = {
+        '480': { width: 640, height: 480 },
+        '720': { width: 1280, height: 720 },
+        '1080': { width: 1920, height: 1080 },
+        '2160': { width: 3840, height: 2160 }
+      };
+
+      const constraints = resolutionMap[settings.resolution] || resolutionMap['1080'];
 
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: "environment",
-          width: { ideal: 1920 }, // Higher res for better zoom
-          height: { ideal: 1080 }
+          width: { ideal: constraints.width },
+          height: { ideal: constraints.height }
         }
       });
 
@@ -61,7 +82,11 @@ const BarcodeScanner = ({ onScan }) => {
     try {
       let detectedCode = null;
 
-      if (usingNative && nativeDetectorRef.current) {
+      // Clear previous drawings
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
+
+      if (settings.useNative && nativeDetectorRef.current) {
         // --- NATIVE DETECTION ---
         try {
           const barcodes = await nativeDetectorRef.current.detect(source);
@@ -70,7 +95,7 @@ const BarcodeScanner = ({ onScan }) => {
             detectedCode = barcode.rawValue;
 
             // Draw box
-            if (barcode.boundingBox) {
+            if (settings.showBoundingBox && barcode.boundingBox) {
               ctx.beginPath();
               ctx.lineWidth = 4;
               ctx.strokeStyle = "#00FF00";
@@ -84,7 +109,6 @@ const BarcodeScanner = ({ onScan }) => {
             }
           }
         } catch (err) {
-          // Native failed
           console.warn("Native detection error:", err);
         }
       } else {
@@ -92,12 +116,18 @@ const BarcodeScanner = ({ onScan }) => {
         // Ensure we have image data from the canvas
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const results = await zbarWasm.scanImageData(imageData);
+
         if (results.length > 0) {
+          // Filter results based on settings if possible, or just take the first valid one
+          // ZBar returns 'type' which is the symbology (e.g. 'CODE-128')
+          // We might need to map settings.formats to ZBar types if we want strict filtering
+          // For now, we accept all and let the user verify
+
           const result = results[0];
           detectedCode = result.decode ? result.decode() : result.data;
 
           // Draw box
-          if (result.points && result.points.length > 0) {
+          if (settings.showBoundingBox && result.points && result.points.length > 0) {
             ctx.beginPath();
             ctx.lineWidth = 4;
             ctx.strokeStyle = "#00FF00";
@@ -129,19 +159,21 @@ const BarcodeScanner = ({ onScan }) => {
   const scanFrame = async () => {
     if (!videoRef.current || !canvasRef.current || !isScanning) return;
 
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    const now = Date.now();
+    if (now - lastScanTimeRef.current >= settings.scanInterval) {
+      lastScanTimeRef.current = now;
 
-    if (video.readyState === video.HAVE_ENOUGH_DATA) {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
 
-      // Draw video to canvas
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
 
-      // Detect
-      await detectFromSource(video, canvas, ctx);
+        // Detect
+        await detectFromSource(video, canvas, ctx);
+      }
     }
 
     // Schedule next scan
@@ -172,9 +204,6 @@ const BarcodeScanner = ({ onScan }) => {
         // Resize canvas to match image
         canvas.width = img.width;
         canvas.height = img.height;
-
-        // Draw image
-        ctx.drawImage(img, 0, 0);
 
         // Detect
         const found = await detectFromSource(img, canvas, ctx);
@@ -234,9 +263,11 @@ const BarcodeScanner = ({ onScan }) => {
         <div className="scanner-overlay-ui">
           <div className="scan-region-marker"></div>
           <p className="scanner-instruction">
-            {usingNative ? "⚡ Native Scanner" : "📷 Web Scanner"}
+            {settings.useNative ? "⚡ Native Scanner" : "📷 ZBar Scanner"}
           </p>
-          <p className="scanner-sub-instruction">Scan Code 128 or Code 39</p>
+          <p className="scanner-sub-instruction">
+            {settings.formats.join(', ').replace(/_/g, ' ').toUpperCase()}
+          </p>
 
           {lastScanned && <p className="last-scanned">Last: {lastScanned}</p>}
         </div>
@@ -262,20 +293,9 @@ const BarcodeScanner = ({ onScan }) => {
             </button>
           </>
         ) : (
-          <>
-            <button className="btn-stop" onClick={stopScanning}>
-              ⏹ Stop
-            </button>
-            {/* Debug Toggle Button */}
-            {'BarcodeDetector' in window && (
-              <button
-                className="btn-debug"
-                onClick={() => setUsingNative(!usingNative)}
-              >
-                {usingNative ? "Switch to Web" : "Switch to Native"}
-              </button>
-            )}
-          </>
+          <button className="btn-stop" onClick={stopScanning}>
+            ⏹ Stop
+          </button>
         )}
       </div>
     </div>
