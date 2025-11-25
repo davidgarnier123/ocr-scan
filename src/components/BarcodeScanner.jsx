@@ -25,6 +25,10 @@ const BarcodeScanner = ({ onScan, settings }) => {
 
   const startScanning = async () => {
     setError(null);
+
+    // Stop any existing stream first
+    stopScanning();
+
     try {
       // Check for Native BarcodeDetector if enabled
       if (settings.useNative && 'BarcodeDetector' in window) {
@@ -39,7 +43,6 @@ const BarcodeScanner = ({ onScan, settings }) => {
             console.log("Using Native BarcodeDetector with formats:", formatsToUse);
           } else {
             console.warn("No requested formats supported by Native Detector");
-            // Fallback or just warn? For now, we stick to user preference but maybe show error.
           }
         } catch (e) {
           console.warn("Native BarcodeDetector failed init", e);
@@ -59,17 +62,32 @@ const BarcodeScanner = ({ onScan, settings }) => {
         video: {
           facingMode: "environment",
           width: { ideal: constraints.width },
-          height: { ideal: constraints.height }
+          height: { ideal: constraints.height },
+          // Try to force continuous focus for better scanning
+          advanced: [{ focusMode: "continuous" }, { focusMode: "macro" }]
         }
       });
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
 
-        videoRef.current.onloadedmetadata = () => {
-          videoRef.current.play();
-          setIsScanning(true);
-          scanFrame();
+        // Wait for video to be ready
+        videoRef.current.onloadedmetadata = async () => {
+          try {
+            await videoRef.current.play();
+            setIsScanning(true);
+            scanFrame();
+
+            // Apply track constraints if possible (double check focus)
+            const track = stream.getVideoTracks()[0];
+            const capabilities = track.getCapabilities();
+            if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
+              await track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] });
+            }
+          } catch (playErr) {
+            console.error("Error playing video:", playErr);
+            setError("Could not start video stream: " + playErr.message);
+          }
         };
       }
     } catch (err) {

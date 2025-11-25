@@ -6,14 +6,29 @@ import './App.css'
 function App() {
   const [scannedCodes, setScannedCodes] = useState([])
   const [view, setView] = useState('scanner'); // 'scanner' or 'settings'
-  const [settings, setSettings] = useState({
-    useNative: true,
-    formats: ['code_128', 'code_39'],
-    resolution: '1080',
-    scanInterval: 100,
-    showBoundingBox: true,
-    vibrate: true
+  const [settings, setSettings] = useState(() => {
+    const saved = localStorage.getItem('scannerSettings');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error("Failed to parse saved settings", e);
+      }
+    }
+    return {
+      useNative: true,
+      formats: ['code_128', 'code_39'],
+      resolution: '1080',
+      scanInterval: 100,
+      showBoundingBox: true,
+      vibrate: true
+    };
   });
+
+  // Save settings to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('scannerSettings', JSON.stringify(settings));
+  }, [settings]);
 
   const handleScan = (code) => {
     setScannedCodes(prev => {
