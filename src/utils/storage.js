@@ -2,7 +2,9 @@
 
 const STORAGE_KEYS = {
   INVENTORIES: 'inventory_data',
-  CURRENT_SESSION: 'current_scan_session'
+  CURRENT_SESSION: 'current_scan_session',
+  EQUIPMENT_DATABASE: 'equipmentDatabase',
+  DATABASE_META: 'databaseMeta'
 };
 
 // Agents mockés pour le développement initial
@@ -115,6 +117,8 @@ export function clearAllData() {
   try {
     localStorage.removeItem(STORAGE_KEYS.INVENTORIES);
     localStorage.removeItem(STORAGE_KEYS.CURRENT_SESSION);
+    localStorage.removeItem(STORAGE_KEYS.EQUIPMENT_DATABASE);
+    localStorage.removeItem(STORAGE_KEYS.DATABASE_META);
     return true;
   } catch (error) {
     console.error('Erreur lors de la réinitialisation des données:', error);
@@ -137,4 +141,122 @@ export function getMockAgents() {
  */
 export function getAgentById(id) {
   return MOCK_AGENTS.find(agent => agent.id === id) || null;
+}
+
+/**
+ * Récupère la base de données des équipements
+ * @returns {Array} Liste des équipements
+ */
+export function getEquipmentDatabase() {
+  try {
+    const data = localStorage.getItem(STORAGE_KEYS.EQUIPMENT_DATABASE);
+    return data ? JSON.parse(data) : [];
+  } catch (error) {
+    console.error('Erreur lors de la récupération de la base d\'équipements:', error);
+    return [];
+  }
+}
+
+/**
+ * Sauvegarde la base de données des équipements
+ * @param {Array} equipments - Liste des équipements
+ * @returns {boolean} Succès de l'opération
+ */
+export function saveEquipmentDatabase(equipments) {
+  try {
+    localStorage.setItem(STORAGE_KEYS.EQUIPMENT_DATABASE, JSON.stringify(equipments));
+    return true;
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde de la base d\'équipements:', error);
+    return false;
+  }
+}
+
+/**
+ * Récupère les métadonnées de la base de données
+ * @returns {Object|null} Métadonnées ou null
+ */
+export function getDatabaseMeta() {
+  try {
+    const data = localStorage.getItem(STORAGE_KEYS.DATABASE_META);
+    return data ? JSON.parse(data) : null;
+  } catch (error) {
+    console.error('Erreur lors de la récupération des métadonnées:', error);
+    return null;
+  }
+}
+
+/**
+ * Sauvegarde les métadonnées de la base de données
+ * @param {Object} meta - Métadonnées (uploadDate, totalItems, fileName)
+ * @returns {boolean} Succès de l'opération
+ */
+export function saveDatabaseMeta(meta) {
+  try {
+    localStorage.setItem(STORAGE_KEYS.DATABASE_META, JSON.stringify(meta));
+    return true;
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde des métadonnées:', error);
+    return false;
+  }
+}
+
+/**
+ * Récupère un équipement par son code-barres (barcode_id)
+ * @param {string} barcodeId - ID du code-barres
+ * @returns {Object|null} Équipement trouvé ou null
+ */
+export function getEquipmentById(barcodeId) {
+  const database = getEquipmentDatabase();
+  return database.find(item => item.barcode_id === barcodeId) || null;
+}
+
+/**
+ * Extrait les agents uniques de la base de données des équipements
+ * Si la base est vide, retourne les agents mockés
+ * @returns {Array} Liste des agents avec {name, service}
+ */
+export function extractAgentsFromDatabase() {
+  const database = getEquipmentDatabase();
+
+  // Fallback vers agents mockés si pas de base
+  if (database.length === 0) {
+    return getMockAgents();
+  }
+
+  const uniqueAgents = new Map();
+
+  database.forEach(item => {
+    if (item.agent_name && item.agent_name !== '""' && item.agent_name.trim() !== '') {
+      // Utiliser le nom comme clé pour garantir l'unicité
+      if (!uniqueAgents.has(item.agent_name)) {
+        uniqueAgents.set(item.agent_name, {
+          name: item.agent_name,
+          service: item.org_path || 'Service inconnu'
+        });
+      }
+    }
+  });
+
+  const agents = Array.from(uniqueAgents.values()).sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
+
+  // Si aucun agent trouvé dans la base, retourner les mockés
+  return agents.length > 0 ? agents : getMockAgents();
+}
+
+/**
+ * Efface la base de données des équipements et ses métadonnées
+ * @returns {boolean} Succès de l'opération
+ */
+export function clearEquipmentDatabase() {
+  try {
+    localStorage.removeItem(STORAGE_KEYS.EQUIPMENT_DATABASE);
+    localStorage.removeItem(STORAGE_KEYS.DATABASE_META);
+    return true;
+  } catch (error) {
+    console.error('Erreur lors de l\'effacement de la base d\'équipements:', error);
+    return false;
+  }
 }

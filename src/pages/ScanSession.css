@@ -109,13 +109,55 @@
     text-align: center;
 }
 
-.item-code {
+.item-icon {
+    font-size: 1.75rem;
+    flex-shrink: 0;
+}
+
+.item-info {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.item-code {
     font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--gray-900);
     letter-spacing: 0.5px;
+}
+
+.item-name {
+    font-size: 13px;
+    color: var(--gray-600);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.btn-view {
+    background: var(--soft-blue);
+    color: var(--primary-blue);
+    border: none;
+    border-radius: var(--radius-sm);
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.btn-view:active {
+    background: var(--primary-blue-light);
+    transform: scale(0.95);
 }
 
 .btn-remove {

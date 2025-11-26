@@ -1,4 +1,5 @@
 import ScannerSettings from '../components/ScannerSettings';
+import EquipmentManager from '../components/EquipmentManager';
 import { clearAllData } from '../utils/storage';
 import './SettingsPage.css';
 
@@ -25,25 +26,7 @@ const SettingsPage = ({ settings, onUpdateSettings }) => {
                 <section className="settings-section">
                     <h2>📊 Gestion des données</h2>
 
-                    <div className="setting-card">
-                        <div className="setting-info">
-                            <h3>Import données devices</h3>
-                            <p>Importez les informations détaillées de votre parc informatique (ordinateurs, écrans, téléphones, etc.)</p>
-                        </div>
-                        <button className="btn-secondary" disabled>
-                            Bientôt disponible
-                        </button>
-                    </div>
-
-                    <div className="setting-card">
-                        <div className="setting-info">
-                            <h3>Import liste des agents</h3>
-                            <p>Importez la liste des agents avec leurs services pour une attribution plus précise</p>
-                        </div>
-                        <button className="btn-secondary" disabled>
-                            Bientôt disponible
-                        </button>
-                    </div>
+                    <EquipmentManager />
 
                     <div className="setting-card danger">
                         <div className="setting-info">

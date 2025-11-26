@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import BarcodeScanner from '../components/BarcodeScanner';
 import AgentSelector from '../components/AgentSelector';
-import { getCurrentSession, saveCurrentSession, clearCurrentSession } from '../utils/storage';
+import EquipmentModal, { getEquipmentIcon } from '../components/EquipmentModal';
+import { getCurrentSession, saveCurrentSession, clearCurrentSession, getEquipmentById } from '../utils/storage';
 import './ScanSession.css';
 
 const ScanSession = ({ settings, onInventoryCreated }) => {
@@ -9,6 +10,7 @@ const ScanSession = ({ settings, onInventoryCreated }) => {
     const [showValidationModal, setShowValidationModal] = useState(false);
     const [selectedAgent, setSelectedAgent] = useState(null);
     const [notes, setNotes] = useState('');
+    const [selectedEquipment, setSelectedEquipment] = useState(null);
 
     // Sauvegarder la session à chaque changement
     useEffect(() => {
@@ -63,6 +65,13 @@ const ScanSession = ({ settings, onInventoryCreated }) => {
         setShowValidationModal(false);
     };
 
+    const handleViewEquipment = (code) => {
+        const equipment = getEquipmentById(code);
+        if (equipment) {
+            setSelectedEquipment(equipment);
+        }
+    };
+
     return (
         <div className="scan-session-page">
             <div className="scanner-container">
@@ -87,19 +96,44 @@ const ScanSession = ({ settings, onInventoryCreated }) => {
                     </div>
 
                     <div className="scanned-list">
-                        {scannedCodes.map((code, index) => (
-                            <div key={index} className="scanned-item">
-                                <span className="item-number">#{index + 1}</span>
-                                <span className="item-code">{code}</span>
-                                <button
-                                    className="btn-remove"
-                                    onClick={() => handleRemoveCode(index)}
-                                    aria-label="Supprimer"
-                                >
-                                    ✕
-                                </button>
-                            </div>
-                        ))}
+                        {scannedCodes.map((code, index) => {
+                            const equipment = getEquipmentById(code);
+                            return (
+                                <div key={index} className="scanned-item">
+                                    <span className="item-number">#{index + 1}</span>
+                                    {equipment && (
+                                        <span className="item-icon" title={equipment.equipment_type}>
+                                            {getEquipmentIcon(equipment.equipment_type)}
+                                        </span>
+                                    )}
+                                    <div className="item-info">
+                                        <span className="item-code">{code}</span>
+                                        {equipment && (
+                                            <span className="item-name">
+                                                {equipment.brand} {equipment.model}
+                                            </span>
+                                        )}
+                                    </div>
+                                    {equipment && (
+                                        <button
+                                            className="btn-view"
+                                            onClick={() => handleViewEquipment(code)}
+                                            aria-label="Voir détails"
+                                            title="Voir les détails"
+                                        >
+                                            👁️
+                                        </button>
+                                    )}
+                                    <button
+                                        className="btn-remove"
+                                        onClick={() => handleRemoveCode(index)}
+                                        aria-label="Supprimer"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
             )}
@@ -148,8 +182,16 @@ const ScanSession = ({ settings, onInventoryCreated }) => {
                     </div>
                 </div>
             )}
+
+            {selectedEquipment && (
+                <EquipmentModal
+                    equipment={selectedEquipment}
+                    onClose={() => setSelectedEquipment(null)}
+                />
+            )}
         </div>
     );
 };
 
 export default ScanSession;
+
