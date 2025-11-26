@@ -280,31 +280,24 @@ const BarcodeScanner = ({ onScan, settings }) => {
       {isScanning && (
         <div className="scanner-overlay-ui">
           <div className="scan-region-marker"></div>
-          <p className="scanner-instruction">
-            {settings.useNative ? "⚡ Native Scanner" : "📷 ZBar Scanner"}
-          </p>
-          <p className="scanner-sub-instruction">
-            {settings.formats.join(', ').replace(/_/g, ' ').toUpperCase()}
-          </p>
-
-          {lastScanned && <p className="last-scanned">Last: {lastScanned}</p>}
         </div>
       )}
 
       <div className="scanner-controls">
         {!isScanning ? (
           <button className="btn-start" onClick={startScanning}>
-            📷 Start Scanner
+            📷 Démarrer
           </button>
         ) : (
           <button className="btn-stop" onClick={stopScanning}>
-            ⏹ Stop
+            ⏹ Arrêter
           </button>
         )}
       </div>
     </div>
   );
 };
+
 
 
 export default BarcodeScanner;

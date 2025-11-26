@@ -1,25 +1,23 @@
 .scanner-container {
   position: relative;
   width: 100%;
-  height: 60vh;
-  background-color: #000;
+  height: 100%;
+  background-color: var(--gray-900);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 .scanner-video-container {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #000;
+  background: var(--gray-900);
   position: relative;
 }
 
-/* ZBar specific styles */
 .scanner-video-container video {
   width: 100%;
   height: 100%;
@@ -27,8 +25,6 @@
   position: absolute;
   top: 0;
   left: 0;
-  opacity: 0.8;
-  /* Slightly dim video to make UI pop */
 }
 
 .scanner-video-container canvas {
@@ -55,82 +51,53 @@
   z-index: 10;
 }
 
-/* Minimalist Scan Marker */
+/* Cadre de scan minimaliste */
 .scan-region-marker {
   width: 280px;
   height: 140px;
-  border: 2px solid rgba(255, 255, 255, 0.6);
-  border-radius: 12px;
-  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
-  /* Darker overlay */
+  border: 3px solid rgba(30, 64, 175, 0.8);
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
   position: relative;
+  animation: pulse 2s infinite;
 }
 
-/* Corner accents */
+@keyframes pulse {
+
+  0%,
+  100% {
+    border-color: rgba(30, 64, 175, 0.6);
+  }
+
+  50% {
+    border-color: rgba(59, 130, 246, 1);
+  }
+}
+
+/* Coins du cadre */
 .scan-region-marker::before,
 .scan-region-marker::after {
   content: '';
   position: absolute;
-  width: 20px;
-  height: 20px;
-  border-color: #fff;
+  width: 24px;
+  height: 24px;
+  border-color: var(--white);
   border-style: solid;
   pointer-events: none;
 }
 
 .scan-region-marker::before {
-  top: -2px;
-  left: -2px;
+  top: -3px;
+  left: -3px;
   border-width: 4px 0 0 4px;
-  border-top-left-radius: 12px;
+  border-top-left-radius: var(--radius-md);
 }
 
 .scan-region-marker::after {
-  bottom: -2px;
-  right: -2px;
+  bottom: -3px;
+  right: -3px;
   border-width: 0 4px 4px 0;
-  border-bottom-right-radius: 12px;
-}
-
-.scanner-instruction {
-  position: absolute;
-  top: 40px;
-  left: 0;
-  width: 100%;
-  text-align: center;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 1rem;
-  font-weight: 500;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-  z-index: 100;
-  pointer-events: auto;
-}
-
-.scanner-sub-instruction {
-  position: absolute;
-  top: 65px;
-  left: 0;
-  width: 100%;
-  text-align: center;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.85rem;
-  z-index: 100;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding: 0 20px;
-  box-sizing: border-box;
-}
-
-.last-scanned {
-  margin-top: 15px;
-  color: #fff;
-  font-family: monospace;
-  background: rgba(255, 255, 255, 0.15);
-  padding: 6px 12px;
-  border-radius: 6px;
-  backdrop-filter: blur(4px);
-  font-size: 0.9rem;
+  border-bottom-right-radius: var(--radius-md);
 }
 
 .error-message {
@@ -138,62 +105,67 @@
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: #ef4444;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 8px;
+  background-color: var(--error);
+  color: var(--white);
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
   z-index: 100;
-  font-size: 0.9rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  font-size: 14px;
+  box-shadow: var(--shadow-lg);
+  font-weight: 500;
 }
 
 .scanner-controls {
   position: absolute;
-  bottom: 30px;
+  bottom: 24px;
   z-index: 50;
   width: 100%;
   display: flex;
   justify-content: center;
+  padding: 0 var(--spacing-md);
 }
 
 .btn-start,
 .btn-stop {
-  padding: 12px 24px;
-  font-size: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 30px;
+  padding: 14px 32px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-start {
+  background: var(--blue-gradient);
+  color: var(--white);
+}
+
+.btn-start:active {
+  transform: scale(0.95);
 }
 
 .btn-stop {
-  background-color: rgba(0, 0, 0, 0.6);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.7);
+  color: var(--white);
+  backdrop-filter: blur(8px);
 }
 
-.btn-stop:hover {
-  background-color: rgba(0, 0, 0, 0.8);
+.btn-stop:active {
+  background: rgba(0, 0, 0, 0.85);
+  transform: scale(0.95);
 }
 
-.btn-start:active,
-.btn-stop:active,
-.btn-debug:active {
-  transform: scale(0.98);
-}
+@media (max-width: 768px) {
+  .scan-region-marker {
+    width: 260px;
+    height: 120px;
+  }
 
-.btn-debug {
-  background-color: rgba(0, 122, 255, 0.8);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.3);
-  margin-left: 10px;
-  font-size: 0.8rem;
-  padding: 12px 16px;
-  border-radius: 30px;
-  cursor: pointer;
-  font-weight: 600;
-  backdrop-filter: blur(4px);
-  transition: all 0.2s ease;
-}
-
-.btn-debug:hover {
-  background-color: rgba(0, 122, 255, 1);
+  .btn-start,
+  .btn-stop {
+    padding: 12px 28px;
+    font-size: 15px;
+  }
 }
