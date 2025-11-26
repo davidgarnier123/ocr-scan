@@ -19,10 +19,6 @@ const InventoryCard = ({ inventory, onView, onDelete }) => {
                     <h3 className="agent-name">{inventory.agent.name}</h3>
                     <p className="agent-service">{inventory.agent.service}</p>
                 </div>
-                <div className="device-count">
-                    <span className="count-number">{inventory.devices.length}</span>
-                    <span className="count-label">équipements</span>
-                </div>
             </div>
 
             <div className="inventory-meta">
@@ -36,6 +32,15 @@ const InventoryCard = ({ inventory, onView, onDelete }) => {
                         <span className="meta-text">{inventory.notes}</span>
                     </div>
                 )}
+            </div>
+
+            <div className="inventory-devices-preview">
+                <h4>Équipements scannés ({inventory.devices.length})</h4>
+                <div className="devices-grid">
+                    {inventory.devices.map((device, index) => (
+                        <span key={index} className="device-tag">{device}</span>
+                    ))}
+                </div>
             </div>
 
             <div className="inventory-actions">

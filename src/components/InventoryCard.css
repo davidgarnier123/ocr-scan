@@ -2,22 +2,24 @@
     background: var(--white);
     border-radius: var(--radius-md);
     padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
     border: 1px solid var(--gray-200);
     transition: all var(--transition-base);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
 }
 
-.inventory-card:active {
-    background: var(--gray-50);
-    transform: scale(0.99);
+.inventory-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    border-color: var(--primary-blue-light);
 }
 
 .inventory-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: var(--spacing-md);
-    padding-bottom: var(--spacing-md);
-    border-bottom: 1px solid var(--gray-100);
 }
 
 .agent-info {
@@ -25,123 +27,112 @@
 }
 
 .agent-name {
-    margin: 0 0 var(--spacing-xs) 0;
-    font-size: 17px;
+    margin: 0 0 4px 0;
+    font-size: 18px;
     font-weight: 700;
     color: var(--gray-900);
 }
 
 .agent-service {
     margin: 0;
-    font-size: 13px;
-    color: var(--gray-500);
-    font-weight: 500;
-}
-
-.device-count {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: var(--blue-gradient);
-    color: var(--white);
-    padding: 10px 16px;
-    border-radius: var(--radius-md);
-    min-width: 70px;
-}
-
-.count-number {
-    font-size: 26px;
-    font-weight: 800;
-    line-height: 1;
-}
-
-.count-label {
-    font-size: 10px;
-    text-transform: uppercase;
-    opacity: 0.9;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    margin-top: var(--spacing-xs);
+    font-size: 14px;
+    color: var(--gray-600);
 }
 
 .inventory-meta {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-sm);
-    margin-bottom: var(--spacing-md);
+    gap: 8px;
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--gray-100);
 }
 
 .meta-item {
     display: flex;
     align-items: center;
-    gap: var(--spacing-sm);
-    font-size: 13px;
-    color: var(--gray-600);
+    gap: 8px;
+    font-size: 14px;
+    color: var(--gray-700);
 }
 
 .meta-icon {
     font-size: 16px;
 }
 
-.meta-text {
-    flex: 1;
+/* Devices Preview */
+.inventory-devices-preview {
+    background: var(--gray-50);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+}
+
+.inventory-devices-preview h4 {
+    margin: 0 0 var(--spacing-sm) 0;
+    font-size: 13px;
+    color: var(--gray-600);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.devices-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.device-tag {
+    background: var(--white);
+    border: 1px solid var(--gray-300);
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+    font-size: 12px;
+    color: var(--gray-800);
+    font-weight: 600;
 }
 
 .inventory-actions {
     display: flex;
-    gap: var(--spacing-sm);
+    gap: var(--spacing-md);
+    margin-top: auto;
 }
 
-.btn-view {
-    flex: 1;
-    padding: 11px var(--spacing-md);
-    background: var(--blue-gradient);
-    color: var(--white);
+.btn-view,
+.btn-delete {
+    padding: 10px var(--spacing-md);
     border: none;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-md);
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: all var(--transition-base);
-    box-shadow: var(--shadow-sm);
 }
 
-.btn-view:active {
-    transform: scale(0.98);
+.btn-view {
+    flex: 1;
+    background: var(--soft-blue);
+    color: var(--primary-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-view:hover {
+    background: var(--primary-blue-light);
 }
 
 .btn-delete {
-    padding: 11px 14px;
     background: var(--error-light);
     color: var(--error);
-    border: none;
-    border-radius: var(--radius-sm);
-    font-size: 18px;
-    cursor: pointer;
-    transition: all var(--transition-base);
+    width: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.btn-delete:active {
+.btn-delete:hover {
     background: var(--error);
     color: var(--white);
-    transform: scale(0.95);
-}
-
-@media (max-width: 768px) {
-    .inventory-card {
-        padding: var(--spacing-md);
-    }
-
-    .agent-name {
-        font-size: 16px;
-    }
-
-    .device-count {
-        min-width: 65px;
-        padding: 8px 12px;
-    }
-
-    .count-number {
-        font-size: 24px;
-    }
 }

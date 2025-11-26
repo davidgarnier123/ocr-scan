@@ -8,6 +8,8 @@ const SearchPage = () => {
     const [typeFilter, setTypeFilter] = useState('');
     const [brandFilter, setBrandFilter] = useState('');
     const [agentFilter, setAgentFilter] = useState('');
+    const [isAgentDropdownOpen, setIsAgentDropdownOpen] = useState(false);
+    const [agentSearchTerm, setAgentSearchTerm] = useState('');
     const [selectedEquipment, setSelectedEquipment] = useState(null);
 
     const equipmentDatabase = getEquipmentDatabase();
@@ -121,16 +123,64 @@ const SearchPage = () => {
                     ))}
                 </select>
 
-                <select
-                    className="filter-select"
-                    value={agentFilter}
-                    onChange={(e) => setAgentFilter(e.target.value)}
-                >
-                    <option value="">Tous les agents</option>
-                    {agents.map(agent => (
-                        <option key={agent} value={agent}>{agent}</option>
-                    ))}
-                </select>
+                {/* Custom Searchable Agent Filter */}
+                <div className="agent-filter-container">
+                    <button
+                        className={`filter-select agent-select-btn ${agentFilter ? 'active' : ''}`}
+                        onClick={() => setIsAgentDropdownOpen(!isAgentDropdownOpen)}
+                    >
+                        {agentFilter || "Tous les agents"}
+                        <span className="arrow">▼</span>
+                    </button>
+
+                    {isAgentDropdownOpen && (
+                        <div className="agent-dropdown">
+                            <input
+                                type="text"
+                                className="agent-search-input"
+                                placeholder="Rechercher un agent..."
+                                value={agentSearchTerm}
+                                onChange={(e) => setAgentSearchTerm(e.target.value)}
+                                autoFocus
+                                onClick={(e) => e.stopPropagation()}
+                            />
+                            <div className="agent-list">
+                                <div
+                                    className={`agent-option ${agentFilter === '' ? 'selected' : ''}`}
+                                    onClick={() => {
+                                        setAgentFilter('');
+                                        setIsAgentDropdownOpen(false);
+                                        setAgentSearchTerm('');
+                                    }}
+                                >
+                                    Tous les agents
+                                </div>
+                                {agents
+                                    .filter(agent => agent.toLowerCase().includes(agentSearchTerm.toLowerCase()))
+                                    .map(agent => (
+                                        <div
+                                            key={agent}
+                                            className={`agent-option ${agentFilter === agent ? 'selected' : ''}`}
+                                            onClick={() => {
+                                                setAgentFilter(agent);
+                                                setIsAgentDropdownOpen(false);
+                                                setAgentSearchTerm('');
+                                            }}
+                                        >
+                                            {agent}
+                                        </div>
+                                    ))
+                                }
+                                {agents.filter(agent => agent.toLowerCase().includes(agentSearchTerm.toLowerCase())).length === 0 && (
+                                    <div className="no-agent-found">Aucun agent trouvé</div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                    {isAgentDropdownOpen && (
+                        <div className="dropdown-overlay" onClick={() => setIsAgentDropdownOpen(false)} />
+                    )}
+                </div>
 
                 {(searchTerm || typeFilter || brandFilter || agentFilter) && (
                     <button className="btn-clear-filters" onClick={handleClearFilters}>
