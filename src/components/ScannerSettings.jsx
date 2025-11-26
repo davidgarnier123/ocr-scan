@@ -1,7 +1,7 @@
 import React from 'react';
 import './ScannerSettings.css';
 
-const ScannerSettings = ({ settings, onUpdate, onBack }) => {
+const ScannerSettings = ({ settings, onUpdate, onBack, embedded = false }) => {
 
     const handleChange = (key, value) => {
         onUpdate({ ...settings, [key]: value });
@@ -17,11 +17,13 @@ const ScannerSettings = ({ settings, onUpdate, onBack }) => {
     };
 
     return (
-        <div className="settings-container">
-            <div className="settings-header">
-                <h2>Scanner Settings</h2>
-                <button className="btn-close" onClick={onBack}>✕</button>
-            </div>
+        <div className={`settings-container ${embedded ? 'embedded' : ''}`}>
+            {!embedded && (
+                <div className="settings-header">
+                    <h2>Scanner Settings</h2>
+                    <button className="btn-close" onClick={onBack}>✕</button>
+                </div>
+            )}
 
             <div className="settings-section">
                 <h3>Detection Engine</h3>
@@ -114,9 +116,12 @@ const ScannerSettings = ({ settings, onUpdate, onBack }) => {
                 </label>
             </div>
 
-            <button className="btn-save" onClick={onBack}>Save & Return</button>
+            {!embedded && (
+                <button className="btn-save" onClick={onBack}>Save & Return</button>
+            )}
         </div>
     );
 };
+
 
 export default ScannerSettings;

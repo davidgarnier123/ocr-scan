@@ -1,0 +1,155 @@
+import { useState, useEffect } from 'react';
+import BarcodeScanner from '../components/BarcodeScanner';
+import AgentSelector from '../components/AgentSelector';
+import { getCurrentSession, saveCurrentSession, clearCurrentSession } from '../utils/storage';
+import './ScanSession.css';
+
+const ScanSession = ({ settings, onInventoryCreated }) => {
+    const [scannedCodes, setScannedCodes] = useState(() => getCurrentSession());
+    const [showValidationModal, setShowValidationModal] = useState(false);
+    const [selectedAgent, setSelectedAgent] = useState(null);
+    const [notes, setNotes] = useState('');
+
+    // Sauvegarder la session à chaque changement
+    useEffect(() => {
+        saveCurrentSession(scannedCodes);
+    }, [scannedCodes]);
+
+    const handleScan = (code) => {
+        setScannedCodes(prev => {
+            if (prev.includes(code)) return prev;
+            return [...prev, code];
+        });
+    };
+
+    const handleRemoveCode = (index) => {
+        setScannedCodes(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const handleClearAll = () => {
+        if (confirm('Êtes-vous sûr de vouloir effacer tous les codes scannés ?')) {
+            setScannedCodes([]);
+            clearCurrentSession();
+        }
+    };
+
+    const handleValidate = () => {
+        if (scannedCodes.length === 0) {
+            alert('Veuillez scanner au moins un équipement avant de valider.');
+            return;
+        }
+        setShowValidationModal(true);
+    };
+
+    const handleConfirmValidation = () => {
+        if (!selectedAgent) {
+            alert('Veuillez sélectionner un agent.');
+            return;
+        }
+
+        const inventory = {
+            agent: selectedAgent,
+            devices: scannedCodes,
+            notes: notes.trim()
+        };
+
+        onInventoryCreated(inventory);
+
+        // Réinitialiser
+        setScannedCodes([]);
+        clearCurrentSession();
+        setSelectedAgent(null);
+        setNotes('');
+        setShowValidationModal(false);
+    };
+
+    return (
+        <div className="scan-session-page">
+            <div className="scanner-container">
+                <BarcodeScanner
+                    onScan={handleScan}
+                    settings={settings}
+                />
+            </div>
+
+            {scannedCodes.length > 0 && (
+                <div className="scanned-items">
+                    <div className="scanned-header">
+                        <h2>Équipements scannés ({scannedCodes.length})</h2>
+                        <div className="header-actions">
+                            <button className="btn-clear" onClick={handleClearAll}>
+                                🗑️ Tout effacer
+                            </button>
+                            <button className="btn-validate" onClick={handleValidate}>
+                                ✓ Finaliser
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="scanned-list">
+                        {scannedCodes.map((code, index) => (
+                            <div key={index} className="scanned-item">
+                                <span className="item-number">#{index + 1}</span>
+                                <span className="item-code">{code}</span>
+                                <button
+                                    className="btn-remove"
+                                    onClick={() => handleRemoveCode(index)}
+                                    aria-label="Supprimer"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {showValidationModal && (
+                <div className="modal-overlay" onClick={() => setShowValidationModal(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <h2>Finaliser l'inventaire</h2>
+
+                        <div className="modal-summary">
+                            <p><strong>{scannedCodes.length}</strong> équipement(s) scanné(s)</p>
+                        </div>
+
+                        <AgentSelector
+                            selectedAgent={selectedAgent}
+                            onSelect={setSelectedAgent}
+                        />
+
+                        <div className="form-group">
+                            <label htmlFor="notes">Notes (optionnel)</label>
+                            <textarea
+                                id="notes"
+                                className="notes-input"
+                                placeholder="Ex: Bureau 2ème étage, salle 204"
+                                value={notes}
+                                onChange={(e) => setNotes(e.target.value)}
+                                rows={3}
+                            />
+                        </div>
+
+                        <div className="modal-actions">
+                            <button
+                                className="btn-cancel"
+                                onClick={() => setShowValidationModal(false)}
+                            >
+                                Annuler
+                            </button>
+                            <button
+                                className="btn-confirm"
+                                onClick={handleConfirmValidation}
+                                disabled={!selectedAgent}
+                            >
+                                ✓ Confirmer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default ScanSession;

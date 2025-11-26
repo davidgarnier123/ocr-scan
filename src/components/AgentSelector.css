@@ -1,0 +1,35 @@
+.agent-selector {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.agent-label {
+    font-weight: 600;
+    color: var(--gray-900);
+    font-size: 14px;
+}
+
+.agent-select {
+    padding: 12px var(--spacing-md);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    background: var(--white);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    outline: none;
+    font-family: inherit;
+    color: var(--gray-900);
+    font-weight: 500;
+}
+
+.agent-select:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px var(--soft-blue);
+}
+
+.agent-select option {
+    padding: var(--spacing-md);
+}

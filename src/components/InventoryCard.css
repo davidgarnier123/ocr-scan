@@ -1,0 +1,147 @@
+.inventory-card {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    border: 1px solid var(--gray-200);
+    transition: all var(--transition-base);
+}
+
+.inventory-card:active {
+    background: var(--gray-50);
+    transform: scale(0.99);
+}
+
+.inventory-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.agent-info {
+    flex: 1;
+}
+
+.agent-name {
+    margin: 0 0 var(--spacing-xs) 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--gray-900);
+}
+
+.agent-service {
+    margin: 0;
+    font-size: 13px;
+    color: var(--gray-500);
+    font-weight: 500;
+}
+
+.device-count {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--blue-gradient);
+    color: var(--white);
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    min-width: 70px;
+}
+
+.count-number {
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.count-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    opacity: 0.9;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-top: var(--spacing-xs);
+}
+
+.inventory-meta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 13px;
+    color: var(--gray-600);
+}
+
+.meta-icon {
+    font-size: 16px;
+}
+
+.meta-text {
+    flex: 1;
+}
+
+.inventory-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.btn-view {
+    flex: 1;
+    padding: 11px var(--spacing-md);
+    background: var(--blue-gradient);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-view:active {
+    transform: scale(0.98);
+}
+
+.btn-delete {
+    padding: 11px 14px;
+    background: var(--error-light);
+    color: var(--error);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 18px;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.btn-delete:active {
+    background: var(--error);
+    color: var(--white);
+    transform: scale(0.95);
+}
+
+@media (max-width: 768px) {
+    .inventory-card {
+        padding: var(--spacing-md);
+    }
+
+    .agent-name {
+        font-size: 16px;
+    }
+
+    .device-count {
+        min-width: 65px;
+        padding: 8px 12px;
+    }
+
+    .count-number {
+        font-size: 24px;
+    }
+}

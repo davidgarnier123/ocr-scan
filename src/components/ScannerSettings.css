@@ -1,4 +1,10 @@
 .settings-container {
+    padding: 0;
+    background-color: transparent;
+    color: inherit;
+}
+
+.settings-container:not(.embedded) {
     padding: 20px;
     background-color: #1a1a1a;
     color: #ffffff;
@@ -35,86 +41,115 @@
 }
 
 .settings-section {
-    margin-bottom: 25px;
-    background: #252525;
-    padding: 15px;
-    border-radius: 12px;
+    margin-bottom: 20px;
+    background: var(--gray-50);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--gray-200);
 }
 
 .settings-section h3 {
     margin-top: 0;
-    margin-bottom: 15px;
-    font-size: 1.1rem;
-    color: #aaa;
+    margin-bottom: var(--spacing-md);
+    font-size: 15px;
+    color: var(--gray-900);
+    font-weight: 600;
 }
 
 .radio-group {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: var(--spacing-sm);
 }
 
 .radio-option {
     display: flex;
     align-items: center;
-    padding: 12px;
-    background: #333;
-    border-radius: 8px;
+    padding: 12px var(--spacing-md);
+    background: var(--white);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all var(--transition-base);
 }
 
 .radio-option.selected {
-    background: #007bff;
-    color: white;
+    background: var(--soft-blue);
+    border-color: var(--primary-blue);
+    color: var(--primary-blue);
 }
 
 .radio-option input {
-    margin-right: 10px;
+    margin-right: var(--spacing-sm);
 }
 
 .setting-hint {
-    font-size: 0.8rem;
-    color: #888;
-    margin-top: 8px;
+    font-size: 12px;
+    color: var(--gray-500);
+    margin-top: var(--spacing-sm);
+    line-height: 1.4;
 }
 
 .checkbox-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    gap: var(--spacing-sm);
 }
 
 .checkbox-option {
     display: flex;
     align-items: center;
-    padding: 10px;
-    background: #333;
-    border-radius: 8px;
+    padding: 10px var(--spacing-md);
+    background: var(--white);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    transition: all var(--transition-base);
+}
+
+.checkbox-option:has(input:checked) {
+    background: var(--soft-blue);
+    border-color: var(--primary-blue);
+    color: var(--primary-blue);
 }
 
 .checkbox-option input {
-    margin-right: 10px;
+    margin-right: var(--spacing-sm);
 }
 
 .settings-select {
     width: 100%;
-    padding: 12px;
-    background: #333;
-    color: white;
-    border: 1px solid #444;
-    border-radius: 8px;
-    font-size: 1rem;
+    padding: 12px var(--spacing-md);
+    background: var(--white);
+    color: var(--gray-900);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    font-family: inherit;
+    outline: none;
+    transition: all var(--transition-base);
+}
+
+.settings-select:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px var(--soft-blue);
 }
 
 .range-control {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: var(--spacing-md);
 }
 
 .range-control input {
     flex: 1;
+}
+
+.range-control span {
+    min-width: 60px;
+    text-align: right;
+    font-weight: 600;
+    color: var(--primary-blue);
 }
 
 .toggle-option {
@@ -122,23 +157,74 @@
     justify-content: space-between;
     align-items: center;
     padding: 12px 0;
-    border-bottom: 1px solid #333;
+    border-bottom: 1px solid var(--gray-200);
 }
 
 .toggle-option:last-child {
     border-bottom: none;
 }
 
+.toggle-option span {
+    font-size: 14px;
+    color: var(--gray-900);
+}
+
 .btn-save {
     width: 100%;
-    padding: 15px;
-    background: #28a745;
+    padding: 14px;
+    background: var(--blue-gradient);
     color: white;
     border: none;
-    border-radius: 12px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    margin-top: 20px;
-    margin-bottom: 40px;
+    border-radius: var(--radius-md);
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: var(--spacing-lg);
     cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.btn-save:active {
+    transform: scale(0.98);
+}
+
+/* Mode non-embedded (ancien style) */
+.settings-container:not(.embedded) .settings-section {
+    background: #252525;
+}
+
+.settings-container:not(.embedded) .settings-section h3 {
+    color: #aaa;
+}
+
+.settings-container:not(.embedded) .radio-option {
+    background: #333;
+    border-color: #444;
+    color: white;
+}
+
+.settings-container:not(.embedded) .radio-option.selected {
+    background: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+.settings-container:not(.embedded) .checkbox-option {
+    background: #333;
+    border-color: #444;
+    color: white;
+}
+
+.settings-container:not(.embedded) .settings-select {
+    background: #333;
+    border-color: #444;
+    color: white;
+}
+
+.settings-container:not(.embedded) .toggle-option {
+    border-bottom-color: #333;
+    color: white;
+}
+
+.settings-container:not(.embedded) .toggle-option span {
+    color: white;
 }

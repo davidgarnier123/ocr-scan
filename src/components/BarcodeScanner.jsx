@@ -292,24 +292,10 @@ const BarcodeScanner = ({ onScan, settings }) => {
       )}
 
       <div className="scanner-controls">
-        <input
-          type="file"
-          accept="image/*"
-          capture="environment"
-          ref={fileInputRef}
-          style={{ display: 'none' }}
-          onChange={handleFileUpload}
-        />
-
         {!isScanning ? (
-          <>
-            <button className="btn-start" onClick={startScanning}>
-              📷 Start Scanner
-            </button>
-            <button className="btn-photo" onClick={triggerFileInput}>
-              🖼️ Take Photo
-            </button>
-          </>
+          <button className="btn-start" onClick={startScanning}>
+            📷 Start Scanner
+          </button>
         ) : (
           <button className="btn-stop" onClick={stopScanning}>
             ⏹ Stop
@@ -319,5 +305,6 @@ const BarcodeScanner = ({ onScan, settings }) => {
     </div>
   );
 };
+
 
 export default BarcodeScanner;
