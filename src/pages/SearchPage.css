@@ -1,5 +1,194 @@
 .search-page {
     display: flex;
+    flex-direction: column;
+    height: calc(100vh - 65px);
+    overflow: hidden;
+    background: var(--gray-50);
+}
+
+.page-header {
+    padding: var(--spacing-md);
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-200);
+    flex-shrink: 0;
+}
+
+.page-header h1 {
+    margin: 0 0 4px 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--gray-900);
+}
+
+.header-subtitle {
+    margin: 0;
+    font-size: 14px;
+    color: var(--gray-600);
+}
+
+/* Search Filters */
+.search-filters {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.search-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 10px var(--spacing-md);
+    border: 2px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    transition: all var(--transition-base);
+    background: var(--white);
+    height: 42px;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px var(--soft-blue);
+}
+
+.filter-select {
+    padding: 0 12px;
+    height: 42px;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    background: var(--white);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    min-width: 140px;
+    display: flex;
+    align-items: center;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px var(--soft-blue);
+}
+
+.btn-clear-filters {
+    padding: 0 12px;
+    height: 42px;
+    background: var(--gray-100);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-700);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+}
+
+.btn-clear-filters:active {
+    background: var(--gray-200);
+    transform: scale(0.98);
+}
+
+/* Agent Dropdown Styles */
+.agent-filter-container {
+    position: relative;
+}
+
+.agent-select-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 180px;
+    text-align: left;
+    height: 42px;
+}
+
+.agent-select-btn .arrow {
+    font-size: 10px;
+    opacity: 0.5;
+}
+
+.agent-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 280px;
+    background: var(--white);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    z-index: 1000;
+    margin-top: 4px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.agent-search-input {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-bottom: 1px solid var(--gray-200);
+    font-size: 14px;
+    outline: none;
+}
+
+.agent-list {
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.agent-option {
+    padding: 10px 12px;
+    font-size: 14px;
+    color: var(--gray-700);
+    cursor: pointer;
+    transition: background var(--transition-base);
+}
+
+.agent-option:hover {
+    background: var(--gray-50);
+}
+
+.agent-option.selected {
+    background: var(--soft-blue);
+    color: var(--primary-blue);
+    font-weight: 600;
+}
+
+.no-agent-found {
+    padding: 12px;
+    text-align: center;
+    color: var(--gray-500);
+    font-size: 13px;
+}
+
+.dropdown-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 999;
+    cursor: default;
+}
+
+/* Search Results */
+.search-results {
+    flex: 1;
+    overflow-y: auto;
     padding: var(--spacing-md);
 }
 
@@ -137,11 +326,13 @@
 
     .search-filters {
         flex-direction: column;
+        align-items: stretch;
     }
 
     .search-input,
     .filter-select,
-    .btn-clear-filters {
+    .btn-clear-filters,
+    .agent-select-btn {
         width: 100%;
         min-width: auto;
     }
