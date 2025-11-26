@@ -85,32 +85,43 @@
 
 .scanned-item {
     background: var(--white);
-    padding: var(--spacing-md);
+    padding: 1rem;
     border-radius: var(--radius-md);
     display: flex;
     align-items: center;
-    gap: var(--spacing-md);
+    gap: 0.875rem;
     border: 1px solid var(--gray-200);
     transition: all var(--transition-base);
 }
 
-.scanned-item:active {
+.scanned-item[style*="pointer"] {
+    cursor: pointer;
+}
+
+.scanned-item[style*="pointer"]:hover {
     background: var(--gray-50);
+    border-color: var(--primary-blue-light);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+}
+
+.scanned-item:active {
+    transform: scale(0.99);
 }
 
 .item-number {
-    background: var(--blue-gradient);
-    color: var(--white);
-    padding: 8px 14px;
+    background: var(--gray-100);
+    color: var(--gray-500);
+    padding: 4px 8px;
     border-radius: var(--radius-sm);
-    font-weight: 700;
-    font-size: 13px;
-    min-width: 45px;
+    font-weight: 600;
+    font-size: 11px;
+    min-width: auto;
     text-align: center;
+    opacity: 0.8;
 }
 
 .item-icon {
-    font-size: 1.75rem;
+    font-size: 2rem;
     flex-shrink: 0;
 }
 
@@ -118,46 +129,22 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
     min-width: 0;
 }
 
 .item-code {
     font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 15px;
+    font-weight: 700;
     color: var(--gray-900);
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
 }
 
 .item-name {
-    font-size: 13px;
+    font-size: 14px;
     color: var(--gray-600);
     font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.btn-view {
-    background: var(--soft-blue);
-    color: var(--primary-blue);
-    border: none;
-    border-radius: var(--radius-sm);
-    width: 36px;
-    height: 36px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: all var(--transition-base);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.btn-view:active {
-    background: var(--primary-blue-light);
-    transform: scale(0.95);
 }
 
 .btn-remove {

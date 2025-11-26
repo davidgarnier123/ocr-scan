@@ -4,6 +4,7 @@ const Navigation = ({ currentPage, onNavigate }) => {
     const pages = [
         { id: 'scanner', label: 'Scanner', icon: '📷' },
         { id: 'inventories', label: 'Inventaires', icon: '📋' },
+        { id: 'search', label: 'Recherche', icon: '🔍' },
         { id: 'settings', label: 'Paramètres', icon: '⚙️' }
     ];
 

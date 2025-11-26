@@ -99,7 +99,12 @@ const ScanSession = ({ settings, onInventoryCreated }) => {
                         {scannedCodes.map((code, index) => {
                             const equipment = getEquipmentById(code);
                             return (
-                                <div key={index} className="scanned-item">
+                                <div
+                                    key={index}
+                                    className="scanned-item"
+                                    onClick={() => equipment && handleViewEquipment(code)}
+                                    style={{ cursor: equipment ? 'pointer' : 'default' }}
+                                >
                                     <span className="item-number">#{index + 1}</span>
                                     {equipment && (
                                         <span className="item-icon" title={equipment.equipment_type}>
@@ -114,19 +119,12 @@ const ScanSession = ({ settings, onInventoryCreated }) => {
                                             </span>
                                         )}
                                     </div>
-                                    {equipment && (
-                                        <button
-                                            className="btn-view"
-                                            onClick={() => handleViewEquipment(code)}
-                                            aria-label="Voir détails"
-                                            title="Voir les détails"
-                                        >
-                                            👁️
-                                        </button>
-                                    )}
                                     <button
                                         className="btn-remove"
-                                        onClick={() => handleRemoveCode(index)}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleRemoveCode(index);
+                                        }}
                                         aria-label="Supprimer"
                                     >
                                         ✕

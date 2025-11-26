@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Navigation from './components/Navigation';
 import ScanSession from './pages/ScanSession';
 import InventoryList from './pages/InventoryList';
+import SearchPage from './pages/SearchPage';
 import SettingsPage from './pages/SettingsPage';
 import { getInventories, saveInventory, deleteInventory } from './utils/storage';
 import './InventoryApp.css';
@@ -70,6 +71,8 @@ function InventoryApp() {
                         onDelete={handleDeleteInventory}
                     />
                 );
+            case 'search':
+                return <SearchPage />;
             case 'settings':
                 return (
                     <SettingsPage
