@@ -8,12 +8,14 @@ const ConsultationPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedAgent, setSelectedAgent] = useState(null);
     const [selectedEquipment, setSelectedEquipment] = useState(null);
+    const [isFocused, setIsFocused] = useState(false);
+
     const equipmentDatabase = getEquipmentDatabase();
     const agents = useMemo(() => extractAgentsFromDatabase(), []);
 
     // Filter agents based on search term
     const filteredAgents = useMemo(() => {
-        if (!searchTerm) return [];
+        if (!searchTerm) return agents; // Return all agents if no search term
         const lowerTerm = searchTerm.toLowerCase();
         return agents.filter(agent =>
             agent.name.toLowerCase().includes(lowerTerm) ||
@@ -40,7 +42,8 @@ const ConsultationPage = () => {
 
     const handleAgentSelect = (agent) => {
         setSelectedAgent(agent);
-        setSearchTerm(''); // Clear search to hide dropdown
+        setSearchTerm(agent.name);
+        setIsFocused(false);
     };
 
     const getEquipmentIcon = (type) => {
@@ -68,6 +71,8 @@ const ConsultationPage = () => {
                         type="text"
                         placeholder="Rechercher un agent..."
                         value={searchTerm}
+                        onFocus={() => setIsFocused(true)}
+                        onBlur={() => setTimeout(() => setIsFocused(false), 200)}
                         onChange={(e) => {
                             setSearchTerm(e.target.value);
                             if (selectedAgent && e.target.value !== selectedAgent.name) {
@@ -78,18 +83,24 @@ const ConsultationPage = () => {
                     />
                 </div>
 
-                {searchTerm && filteredAgents.length > 0 && !selectedAgent && (
+                {isFocused && !selectedAgent && (
                     <div className="agents-dropdown">
-                        {filteredAgents.map(agent => (
-                            <div
-                                key={agent.name}
-                                className="agent-option"
-                                onClick={() => handleAgentSelect(agent)}
-                            >
-                                <div className="agent-option-name">{agent.name}</div>
-                                <div className="agent-option-service">{agent.service}</div>
+                        {filteredAgents.length > 0 ? (
+                            filteredAgents.map(agent => (
+                                <div
+                                    key={agent.name}
+                                    className="agent-option"
+                                    onClick={() => handleAgentSelect(agent)}
+                                >
+                                    <div className="agent-option-name">{agent.name}</div>
+                                    <div className="agent-option-service">{agent.service}</div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="agent-option no-results">
+                                Aucun agent trouvé
                             </div>
-                        ))}
+                        )}
                     </div>
                 )}
             </div>

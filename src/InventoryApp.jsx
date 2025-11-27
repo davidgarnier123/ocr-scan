@@ -3,6 +3,7 @@ import Navigation from './components/Navigation';
 import ScanSession from './pages/ScanSession';
 import InventoryList from './pages/InventoryList';
 import SearchPage from './pages/SearchPage';
+import ConsultationPage from './pages/ConsultationPage';
 import SettingsPage from './pages/SettingsPage';
 import { getInventories, saveInventory, deleteInventory } from './utils/storage';
 import './InventoryApp.css';
@@ -73,6 +74,8 @@ function InventoryApp() {
                 );
             case 'search':
                 return <SearchPage />;
+            case 'consultation':
+                return <ConsultationPage />;
             case 'settings':
                 return (
                     <SettingsPage

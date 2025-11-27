@@ -107,6 +107,9 @@ function App() {
 
   return (
     <div className="app-container">
+      <div style={{ position: 'fixed', top: 0, left: 0, zIndex: 99999, background: 'red', color: 'white', padding: '4px', fontSize: '10px' }}>
+        Debug View: {view}
+      </div>
       {renderView()}
 
       {view !== 'settings' && (
