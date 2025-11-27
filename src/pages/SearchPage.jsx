@@ -7,9 +7,6 @@ const SearchPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [typeFilter, setTypeFilter] = useState('');
     const [brandFilter, setBrandFilter] = useState('');
-    const [agentFilter, setAgentFilter] = useState('');
-    const [isAgentDropdownOpen, setIsAgentDropdownOpen] = useState(false);
-    const [agentSearchTerm, setAgentSearchTerm] = useState('');
     const [selectedEquipment, setSelectedEquipment] = useState(null);
     const [showFilters, setShowFilters] = useState(false);
 
@@ -17,21 +14,18 @@ const SearchPage = () => {
     const databaseMeta = getDatabaseMeta();
 
     // Extract unique values for filters
-    const { types, brands, agents } = useMemo(() => {
+    const { types, brands } = useMemo(() => {
         const typesSet = new Set();
         const brandsSet = new Set();
-        const agentsSet = new Set();
 
         equipmentDatabase.forEach(eq => {
             if (eq.equipment_type) typesSet.add(eq.equipment_type);
             if (eq.brand) brandsSet.add(eq.brand);
-            if (eq.agent_name && eq.agent_name !== '""') agentsSet.add(eq.agent_name);
         });
 
         return {
             types: Array.from(typesSet).sort(),
-            brands: Array.from(brandsSet).sort(),
-            agents: Array.from(agentsSet).sort()
+            brands: Array.from(brandsSet).sort()
         };
     }, [equipmentDatabase]);
 
@@ -58,18 +52,14 @@ const SearchPage = () => {
             // Brand filter
             if (brandFilter && eq.brand !== brandFilter) return false;
 
-            // Agent filter
-            if (agentFilter && eq.agent_name !== agentFilter) return false;
-
             return true;
         });
-    }, [equipmentDatabase, searchTerm, typeFilter, brandFilter, agentFilter]);
+    }, [equipmentDatabase, searchTerm, typeFilter, brandFilter]);
 
     const handleClearFilters = () => {
         setSearchTerm('');
         setTypeFilter('');
         setBrandFilter('');
-        setAgentFilter('');
     };
 
     if (!databaseMeta) {
@@ -134,66 +124,7 @@ const SearchPage = () => {
                         ))}
                     </select>
 
-                    {/* Custom Searchable Agent Filter */}
-                    <div className="agent-filter-container">
-                        <button
-                            className={`filter-select agent-select-btn ${agentFilter ? 'active' : ''}`}
-                            onClick={() => setIsAgentDropdownOpen(!isAgentDropdownOpen)}
-                        >
-                            {agentFilter || "Tous les agents"}
-                            <span className="arrow">▼</span>
-                        </button>
-
-                        {isAgentDropdownOpen && (
-                            <div className="agent-dropdown">
-                                <input
-                                    type="text"
-                                    className="agent-search-input"
-                                    placeholder="Rechercher un agent..."
-                                    value={agentSearchTerm}
-                                    onChange={(e) => setAgentSearchTerm(e.target.value)}
-                                    autoFocus
-                                    onClick={(e) => e.stopPropagation()}
-                                />
-                                <div className="agent-list">
-                                    <div
-                                        className={`agent-option ${agentFilter === '' ? 'selected' : ''}`}
-                                        onClick={() => {
-                                            setAgentFilter('');
-                                            setIsAgentDropdownOpen(false);
-                                            setAgentSearchTerm('');
-                                        }}
-                                    >
-                                        Tous les agents
-                                    </div>
-                                    {agents
-                                        .filter(agent => agent.toLowerCase().includes(agentSearchTerm.toLowerCase()))
-                                        .map(agent => (
-                                            <div
-                                                key={agent}
-                                                className={`agent-option ${agentFilter === agent ? 'selected' : ''}`}
-                                                onClick={() => {
-                                                    setAgentFilter(agent);
-                                                    setIsAgentDropdownOpen(false);
-                                                    setAgentSearchTerm('');
-                                                }}
-                                            >
-                                                {agent}
-                                            </div>
-                                        ))
-                                    }
-                                    {agents.filter(agent => agent.toLowerCase().includes(agentSearchTerm.toLowerCase())).length === 0 && (
-                                        <div className="no-agent-found">Aucun agent trouvé</div>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-                        {isAgentDropdownOpen && (
-                            <div className="dropdown-overlay" onClick={() => setIsAgentDropdownOpen(false)} />
-                        )}
-                    </div>
-
-                    {(searchTerm || typeFilter || brandFilter || agentFilter) && (
+                    {(searchTerm || typeFilter || brandFilter) && (
                         <button className="btn-clear-filters" onClick={handleClearFilters}>
                             ✕
                         </button>

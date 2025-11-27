@@ -5,6 +5,7 @@ const Navigation = ({ currentPage, onNavigate }) => {
         { id: 'scanner', label: 'Scanner', icon: '📷' },
         { id: 'inventories', label: 'Inventaires', icon: '📋' },
         { id: 'search', label: 'Recherche', icon: '🔍' },
+        { id: 'consultation', label: 'Consultation', icon: '👤' },
         { id: 'settings', label: 'Paramètres', icon: '⚙️' }
     ];
 

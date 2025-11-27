@@ -40,7 +40,14 @@ const EquipmentModal = ({ equipment, onClose }) => {
                         <span className="equipment-icon-large">{getEquipmentIcon(equipment.equipment_type)}</span>
                         <div>
                             <h2>{equipment.brand} {equipment.model}</h2>
-                            <span className="equipment-type">{equipment.equipment_type}</span>
+                            <div className="equipment-badges">
+                                <span className="equipment-type">{equipment.equipment_type}</span>
+                                {equipment.internal_id && (
+                                    <span className="internal-id-badge">
+                                        ID: {equipment.internal_id}
+                                    </span>
+                                )}
+                            </div>
                         </div>
                     </div>
                     <button className="close-button" onClick={onClose} aria-label="Fermer">✕</button>

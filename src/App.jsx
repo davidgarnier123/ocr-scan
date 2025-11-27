@@ -1,11 +1,17 @@
 import { useState, useEffect } from 'react'
 import BarcodeScanner from './components/BarcodeScanner'
 import ScannerSettings from './components/ScannerSettings'
+import InventoryList from './pages/InventoryList'
+import SearchPage from './pages/SearchPage'
+import ConsultationPage from './pages/ConsultationPage'
+import Navigation from './components/Navigation'
+import { getInventories, deleteInventory } from './utils/storage'
 import './App.css'
 
 function App() {
   const [scannedCodes, setScannedCodes] = useState([])
-  const [view, setView] = useState('scanner'); // 'scanner' or 'settings'
+  const [view, setView] = useState('scanner'); // 'scanner', 'settings', 'inventories', 'search', 'consultation'
+  const [inventories, setInventories] = useState([]);
   const [settings, setSettings] = useState(() => {
     const saved = localStorage.getItem('scannerSettings');
     if (saved) {
@@ -25,6 +31,13 @@ function App() {
     };
   });
 
+  // Load inventories on mount and when view changes to inventories
+  useEffect(() => {
+    if (view === 'inventories') {
+      setInventories(getInventories());
+    }
+  }, [view]);
+
   // Save settings to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem('scannerSettings', JSON.stringify(settings));
@@ -41,52 +54,65 @@ function App() {
     })
   }
 
+  const handleDeleteInventory = (id) => {
+    if (deleteInventory(id)) {
+      setInventories(getInventories());
+    }
+  };
+
+  const renderView = () => {
+    switch (view) {
+      case 'scanner':
+        return (
+          <>
+            <BarcodeScanner
+              onScan={handleScan}
+              settings={settings}
+            />
+            {scannedCodes.length > 0 && (
+              <div className="scanned-list-overlay">
+                <h3>Scanned Codes</h3>
+                <ul>
+                  {scannedCodes.map((code, index) => (
+                    <li key={index}>{code}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </>
+        );
+      case 'settings':
+        return (
+          <ScannerSettings
+            settings={settings}
+            onUpdate={setSettings}
+            onBack={() => setView('scanner')}
+          />
+        );
+      case 'inventories':
+        return (
+          <InventoryList
+            inventories={inventories}
+            onDelete={handleDeleteInventory}
+          />
+        );
+      case 'search':
+        return <SearchPage />;
+      case 'consultation':
+        return <ConsultationPage />;
+      default:
+        return <div>Page not found</div>;
+    }
+  };
+
   return (
     <div className="app-container">
-      {view === 'scanner' ? (
-        <>
-          <BarcodeScanner
-            onScan={handleScan}
-            settings={settings}
-          />
+      {renderView()}
 
-          <button
-            className="btn-settings-float"
-            onClick={() => setView('settings')}
-            style={{
-              position: 'fixed',
-              top: '20px',
-              right: '20px',
-              zIndex: 100,
-              background: 'rgba(0,0,0,0.6)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '50%',
-              width: '40px',
-              height: '40px',
-              fontSize: '20px',
-              cursor: 'pointer'
-            }}
-          >
-            ⚙️
-          </button>
-
-          {scannedCodes.length > 0 && (
-            <div className="scanned-list-overlay">
-              <h3>Scanned Codes</h3>
-              <ul>
-                {scannedCodes.map((code, index) => (
-                  <li key={index}>{code}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </>
-      ) : (
-        <ScannerSettings
-          settings={settings}
-          onUpdate={setSettings}
-          onBack={() => setView('scanner')}
+      {view !== 'settings' && (
+        <Navigation
+          currentPage={view}
+          onNavigate={setView}
         />
       )}
     </div>
