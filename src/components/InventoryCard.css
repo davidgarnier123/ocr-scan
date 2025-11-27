@@ -1,19 +1,18 @@
 .inventory-card {
     background: var(--white);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-lg);
     padding: var(--spacing-lg);
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--shadow-md);
     border: 1px solid var(--gray-200);
-    transition: all var(--transition-base);
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
     display: flex;
     flex-direction: column;
     gap: var(--spacing-md);
 }
 
 .inventory-card:hover {
-    box-shadow: var(--shadow-md);
     transform: translateY(-2px);
-    border-color: var(--primary-blue-light);
+    box-shadow: var(--shadow-lg);
 }
 
 .inventory-header {
@@ -22,27 +21,38 @@
     align-items: flex-start;
 }
 
-.agent-info {
-    flex: 1;
-}
-
 .agent-name {
-    margin: 0 0 4px 0;
+    margin: 0;
     font-size: 18px;
     font-weight: 700;
     color: var(--gray-900);
 }
 
 .agent-service {
-    margin: 0;
-    font-size: 14px;
-    color: var(--gray-600);
+    margin: 4px 0 0 0;
+    font-size: 13px;
+    color: var(--gray-500);
+    font-weight: 500;
+}
+
+.btn-delete-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    opacity: 0.5;
+    transition: opacity var(--transition-base);
+    padding: 4px;
+}
+
+.btn-delete-icon:hover {
+    opacity: 1;
 }
 
 .inventory-meta {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: var(--spacing-xs);
     padding-bottom: var(--spacing-md);
     border-bottom: 1px solid var(--gray-100);
 }
@@ -50,89 +60,55 @@
 .meta-item {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    color: var(--gray-700);
+    gap: var(--spacing-sm);
+    font-size: 13px;
+    color: var(--gray-600);
 }
 
 .meta-icon {
+    font-size: 14px;
+}
+
+.inventory-devices-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.device-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Status Colors */
+.device-row.confirmed {
+    background-color: rgba(16, 185, 129, 0.1);
+    /* Green tint */
+    color: #065f46;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.device-row.added {
+    background-color: rgba(245, 158, 11, 0.1);
+    /* Amber tint */
+    color: #92400e;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.device-icon {
     font-size: 16px;
 }
 
-/* Devices Preview */
-.inventory-devices-preview {
-    background: var(--gray-50);
-    padding: var(--spacing-md);
-    border-radius: var(--radius-md);
-}
-
-.inventory-devices-preview h4 {
-    margin: 0 0 var(--spacing-sm) 0;
-    font-size: 13px;
-    color: var(--gray-600);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.devices-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.device-tag {
-    background: var(--white);
-    border: 1px solid var(--gray-300);
-    padding: 4px 8px;
-    border-radius: var(--radius-sm);
-    font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
-    font-size: 12px;
-    color: var(--gray-800);
-    font-weight: 600;
-}
-
-.inventory-actions {
-    display: flex;
-    gap: var(--spacing-md);
-    margin-top: auto;
-}
-
-.btn-view,
-.btn-delete {
-    padding: 10px var(--spacing-md);
-    border: none;
-    border-radius: var(--radius-md);
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all var(--transition-base);
-}
-
-.btn-view {
+.device-code {
     flex: 1;
-    background: var(--soft-blue);
-    color: var(--primary-blue);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+    font-family: monospace;
 }
 
-.btn-view:hover {
-    background: var(--primary-blue-light);
-}
-
-.btn-delete {
-    background: var(--error-light);
-    color: var(--error);
-    width: 42px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.btn-delete:hover {
-    background: var(--error);
-    color: var(--white);
+.device-status-indicator {
+    font-size: 12px;
 }
