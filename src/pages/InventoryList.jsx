@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import InventoryCard from '../components/InventoryCard';
+import EquipmentModal from '../components/EquipmentModal';
 import { getEquipmentDatabase } from '../utils/storage';
 import './InventoryList.css';
 
 const InventoryList = ({ inventories, onDelete }) => {
+    const [selectedEquipment, setSelectedEquipment] = useState(null);
     const equipmentDatabase = getEquipmentDatabase();
 
     const handleDelete = (id) => {
@@ -34,10 +37,16 @@ const InventoryList = ({ inventories, onDelete }) => {
                             inventory={inventory}
                             equipmentDatabase={equipmentDatabase}
                             onDelete={handleDelete}
+                            onDeviceClick={setSelectedEquipment}
                         />
                     ))}
                 </div>
             )}
+
+            <EquipmentModal
+                equipment={selectedEquipment}
+                onClose={() => setSelectedEquipment(null)}
+            />
         </div>
     );
 };

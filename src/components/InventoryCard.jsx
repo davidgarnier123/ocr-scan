@@ -1,6 +1,6 @@
 import './InventoryCard.css';
 
-const InventoryCard = ({ inventory, equipmentDatabase, onDelete }) => {
+const InventoryCard = ({ inventory, equipmentDatabase, onDelete, onDeviceClick }) => {
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         return new Intl.DateTimeFormat('fr-FR', {
@@ -37,7 +37,8 @@ const InventoryCard = ({ inventory, equipmentDatabase, onDelete }) => {
             code,
             status: isConfirmed ? 'confirmed' : 'added',
             type: deviceInDb ? deviceInDb.equipment_type : 'Inconnu',
-            icon: getDeviceIcon(deviceInDb ? deviceInDb.equipment_type : null)
+            icon: getDeviceIcon(deviceInDb ? deviceInDb.equipment_type : null),
+            data: deviceInDb || { barcode_id: code, equipment_type: 'Inconnu' }
         };
     });
 
@@ -68,7 +69,11 @@ const InventoryCard = ({ inventory, equipmentDatabase, onDelete }) => {
 
             <div className="inventory-devices-list">
                 {processedDevices.map((device, index) => (
-                    <div key={index} className={`device-row ${device.status}`}>
+                    <div
+                        key={index}
+                        className={`device-row ${device.status}`}
+                        onClick={() => onDeviceClick && onDeviceClick(device.data)}
+                    >
                         <span className="device-icon" title={device.type}>{device.icon}</span>
                         <span className="device-code">{device.code}</span>
                         <span className="device-status-indicator">
