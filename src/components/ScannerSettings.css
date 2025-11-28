@@ -79,8 +79,20 @@
     color: var(--primary-blue);
 }
 
-.radio-option input {
-    margin-right: var(--spacing-sm);
+.option-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.option-title {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.option-desc {
+    font-size: 12px;
+    opacity: 0.8;
+    margin-top: 2px;
 }
 
 .setting-hint {

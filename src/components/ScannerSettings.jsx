@@ -27,27 +27,41 @@ const ScannerSettings = ({ settings, onUpdate, onBack, embedded = false }) => {
 
             <div className="settings-section">
                 <h3>Detection Engine</h3>
-                <div className="radio-group">
-                    <label className={`radio-option ${settings.useNative ? 'selected' : ''}`}>
+                <div className="radio-group vertical">
+                    <label className={`radio-option ${settings.detectionEngine === 'native' ? 'selected' : ''}`}>
                         <input
                             type="radio"
-                            checked={settings.useNative}
-                            onChange={() => handleChange('useNative', true)}
+                            checked={settings.detectionEngine === 'native'}
+                            onChange={() => handleChange('detectionEngine', 'native')}
                         />
-                        <span>Native API (Android/Chrome)</span>
+                        <div className="option-content">
+                            <span className="option-title">Native API (Android/Chrome)</span>
+                            <span className="option-desc">Fastest, uses device hardware.</span>
+                        </div>
                     </label>
-                    <label className={`radio-option ${!settings.useNative ? 'selected' : ''}`}>
+                    <label className={`radio-option ${settings.detectionEngine === 'zbar' ? 'selected' : ''}`}>
                         <input
                             type="radio"
-                            checked={!settings.useNative}
-                            onChange={() => handleChange('useNative', false)}
+                            checked={settings.detectionEngine === 'zbar'}
+                            onChange={() => handleChange('detectionEngine', 'zbar')}
                         />
-                        <span>ZBar (iOS/WASM)</span>
+                        <div className="option-content">
+                            <span className="option-title">ZBar (WASM)</span>
+                            <span className="option-desc">Robust for iOS. Good for 1D codes.</span>
+                        </div>
+                    </label>
+                    <label className={`radio-option ${settings.detectionEngine === 'zxing' ? 'selected' : ''}`}>
+                        <input
+                            type="radio"
+                            checked={settings.detectionEngine === 'zxing'}
+                            onChange={() => handleChange('detectionEngine', 'zxing')}
+                        />
+                        <div className="option-content">
+                            <span className="option-title">ZXing (JavaScript)</span>
+                            <span className="option-desc">Versatile, pure JS fallback.</span>
+                        </div>
                     </label>
                 </div>
-                <p className="setting-hint">
-                    Native is faster on Android. ZBar is required for iOS (until iOS 17+ fully supports Native).
-                </p>
             </div>
 
             <div className="settings-section">

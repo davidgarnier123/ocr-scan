@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as zbarWasm from '@undecaf/zbar-wasm';
+import { BrowserMultiFormatReader, NotFoundException } from '@zxing/library';
 import './BarcodeScanner.css';
 
 const BarcodeScanner = ({ onScan, settings }) => {
@@ -7,6 +8,7 @@ const BarcodeScanner = ({ onScan, settings }) => {
   const canvasRef = useRef(null);
   const scanIntervalRef = useRef(null);
   const nativeDetectorRef = useRef(null);
+  const zxingReaderRef = useRef(null);
   const lastScanTimeRef = useRef(0);
   const [error, setError] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
@@ -21,7 +23,7 @@ const BarcodeScanner = ({ onScan, settings }) => {
       startScanning();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings.useNative, settings.resolution, settings.formats]);
+  }, [settings.detectionEngine, settings.resolution, settings.formats]);
 
   const startScanning = async () => {
     setError(null);
@@ -30,8 +32,8 @@ const BarcodeScanner = ({ onScan, settings }) => {
     stopScanning();
 
     try {
-      // Check for Native BarcodeDetector if enabled
-      if (settings.useNative && 'BarcodeDetector' in window) {
+      // Initialize Detectors based on settings
+      if (settings.detectionEngine === 'native' && 'BarcodeDetector' in window) {
         try {
           const supportedFormats = await window.BarcodeDetector.getSupportedFormats();
           const formatsToUse = settings.formats.filter(f => supportedFormats.includes(f));
@@ -46,6 +48,13 @@ const BarcodeScanner = ({ onScan, settings }) => {
           }
         } catch (e) {
           console.warn("Native BarcodeDetector failed init", e);
+        }
+      } else if (settings.detectionEngine === 'zxing') {
+        try {
+          zxingReaderRef.current = new BrowserMultiFormatReader();
+          console.log("Using ZXing Reader");
+        } catch (e) {
+          console.error("ZXing failed init", e);
         }
       }
 
@@ -104,7 +113,7 @@ const BarcodeScanner = ({ onScan, settings }) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
 
-      if (settings.useNative && nativeDetectorRef.current) {
+      if (settings.detectionEngine === 'native' && nativeDetectorRef.current) {
         // --- NATIVE DETECTION ---
         try {
           const barcodes = await nativeDetectorRef.current.detect(source);
@@ -128,6 +137,36 @@ const BarcodeScanner = ({ onScan, settings }) => {
           }
         } catch (err) {
           console.warn("Native detection error:", err);
+        }
+      } else if (settings.detectionEngine === 'zxing' && zxingReaderRef.current) {
+        // --- ZXING DETECTION ---
+        try {
+          // decodeFromCanvas is not always reliable for continuous scanning if it expects a full canvas element
+          // But let's try it as it's the standard way for single frame
+          const result = await zxingReaderRef.current.decodeFromCanvas(canvas);
+          if (result) {
+            detectedCode = result.getText();
+
+            // Draw box
+            if (settings.showBoundingBox && result.getResultPoints()) {
+              const points = result.getResultPoints();
+              if (points.length > 0) {
+                ctx.beginPath();
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = "#00FF00";
+                ctx.moveTo(points[0].getX(), points[0].getY());
+                for (let i = 1; i < points.length; i++) {
+                  ctx.lineTo(points[i].getX(), points[i].getY());
+                }
+                ctx.closePath();
+                ctx.stroke();
+              }
+            }
+          }
+        } catch (err) {
+          if (!(err instanceof NotFoundException)) {
+            console.warn("ZXing detection error:", err);
+          }
         }
       } else {
         // --- ZBAR WASM DETECTION ---

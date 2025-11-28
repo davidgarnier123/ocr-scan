@@ -22,7 +22,7 @@ function App() {
       }
     }
     return {
-      useNative: true,
+      detectionEngine: 'native', // 'native', 'zbar', 'zxing'
       formats: ['code_128', 'code_39'],
       resolution: '1080',
       scanInterval: 100,
@@ -30,6 +30,19 @@ function App() {
       vibrate: true
     };
   });
+
+  // Migration for old settings
+  useEffect(() => {
+    if (settings.useNative !== undefined) {
+      setSettings(prev => {
+        const { useNative, ...rest } = prev;
+        return {
+          ...rest,
+          detectionEngine: useNative ? 'native' : 'zbar'
+        };
+      });
+    }
+  }, []);
 
   // Load inventories on mount and when view changes to inventories
   useEffect(() => {
