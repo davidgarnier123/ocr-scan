@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as zbarWasm from '@undecaf/zbar-wasm';
-import { BrowserMultiFormatReader, NotFoundException, BarcodeFormat, DecodeHintType } from '@zxing/library';
+import Quagga from '@ericblade/quagga2';
 import './BarcodeScanner.css';
 
 const BarcodeScanner = ({ onScan, settings }) => {
@@ -8,7 +8,6 @@ const BarcodeScanner = ({ onScan, settings }) => {
   const canvasRef = useRef(null);
   const scanIntervalRef = useRef(null);
   const nativeDetectorRef = useRef(null);
-  const zxingReaderRef = useRef(null);
   const lastScanTimeRef = useRef(0);
   const [error, setError] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
@@ -48,27 +47,6 @@ const BarcodeScanner = ({ onScan, settings }) => {
           }
         } catch (e) {
           console.warn("Native BarcodeDetector failed init", e);
-        }
-      } else if (settings.detectionEngine === 'zxing') {
-        try {
-          const hints = new Map();
-          const formats = [];
-
-          if (settings.formats.includes('code_128')) formats.push(BarcodeFormat.CODE_128);
-          if (settings.formats.includes('code_39')) formats.push(BarcodeFormat.CODE_39);
-          if (settings.formats.includes('ean_13')) formats.push(BarcodeFormat.EAN_13);
-          if (settings.formats.includes('qr_code')) formats.push(BarcodeFormat.QR_CODE);
-          if (settings.formats.includes('upc_a')) formats.push(BarcodeFormat.UPC_A);
-
-          if (formats.length > 0) {
-            hints.set(DecodeHintType.POSSIBLE_FORMATS, formats);
-          }
-          hints.set(DecodeHintType.TRY_HARDER, true);
-
-          zxingReaderRef.current = new BrowserMultiFormatReader(hints);
-          console.log("Using ZXing Reader with hints:", hints);
-        } catch (e) {
-          console.error("ZXing failed init", e);
         }
       }
 
@@ -133,6 +111,20 @@ const BarcodeScanner = ({ onScan, settings }) => {
         if (renderWidth > MAX_WIDTH) {
           const ratio = MAX_WIDTH / renderWidth;
           renderWidth = MAX_WIDTH;
+          renderHeight = renderHeight * ratio;
+        }
+      }
+
+      // Clear previous drawings
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw image to canvas (scaled if needed)
+      ctx.drawImage(source, 0, 0, renderWidth, renderHeight);
+
+      if (settings.detectionEngine === 'native' && nativeDetectorRef.current) {
+        // --- NATIVE DETECTION ---
+        try {
+          const barcodes = await nativeDetectorRef.current.detect(source);
           if (barcodes.length > 0) {
             const barcode = barcodes[0];
             detectedCode = barcode.rawValue;
@@ -154,35 +146,56 @@ const BarcodeScanner = ({ onScan, settings }) => {
         } catch (err) {
           console.warn("Native detection error:", err);
         }
-      } else if (settings.detectionEngine === 'zxing' && zxingReaderRef.current) {
-        // --- ZXING DETECTION ---
+      } else if (settings.detectionEngine === 'quagga') {
+        // --- QUAGGA2 DETECTION ---
         try {
-          // decodeFromCanvas is not always reliable for continuous scanning if it expects a full canvas element
-          // But let's try it as it's the standard way for single frame
-          const result = await zxingReaderRef.current.decodeFromCanvas(canvas);
-          if (result) {
-            detectedCode = result.getText();
+          // Map settings formats to Quagga readers
+          const readers = [];
+          if (settings.formats.includes('code_128')) readers.push('code_128_reader');
+          if (settings.formats.includes('code_39')) readers.push('code_39_reader');
+          if (settings.formats.includes('ean_13')) readers.push('ean_reader');
+          if (settings.formats.includes('upc_a')) readers.push('upc_reader');
 
-            // Draw box
-            if (settings.showBoundingBox && result.getResultPoints()) {
-              const points = result.getResultPoints();
-              if (points.length > 0) {
-                ctx.beginPath();
-                ctx.lineWidth = 4;
-                ctx.strokeStyle = "#00FF00";
-                ctx.moveTo(points[0].getX(), points[0].getY());
-                for (let i = 1; i < points.length; i++) {
-                  ctx.lineTo(points[i].getX(), points[i].getY());
-                }
-                ctx.closePath();
-                ctx.stroke();
-              }
+          if (readers.length === 0) readers.push('code_128_reader'); // Default
+
+          // Convert canvas to data URL for Quagga (or pass canvas directly if supported, 
+          // but decodeSingle expects src as base64 or url)
+          // Actually Quagga.decodeSingle config takes 'src' which can be a data URL.
+          const dataUrl = canvas.toDataURL('image/jpeg');
+
+          const result = await new Promise((resolve) => {
+            Quagga.decodeSingle({
+              src: dataUrl,
+              numOfWorkers: 0, // Main thread for simplicity in this loop
+              inputStream: {
+                size: 800 // restrict input size
+              },
+              decoder: {
+                readers: readers
+              },
+              locate: true
+            }, (res) => {
+              resolve(res);
+            });
+          });
+
+          if (result && result.codeResult) {
+            detectedCode = result.codeResult.code;
+            console.log("Quagga detected:", detectedCode);
+
+            // Draw box if available
+            if (settings.showBoundingBox && result.box) {
+              ctx.beginPath();
+              ctx.lineWidth = 4;
+              ctx.strokeStyle = "#00FF00";
+              // Quagga returns box as [ [x,y], [x,y], ... ] or object?
+              // It returns 'box' in the result object, but coordinate mapping from processed image 
+              // back to canvas might be tricky if Quagga resized it.
+              // For now, skip complex box drawing for Quagga or implement simple one.
             }
           }
         } catch (err) {
-          if (!(err instanceof NotFoundException)) {
-            console.warn("ZXing detection error:", err);
-          }
+          console.warn("Quagga detection error:", err);
         }
       } else {
         // --- ZBAR WASM DETECTION ---

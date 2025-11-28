@@ -14,35 +14,28 @@ function App() {
   const [inventories, setInventories] = useState([]);
   const [settings, setSettings] = useState(() => {
     const saved = localStorage.getItem('scannerSettings');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error("Failed to parse saved settings", e);
-      }
-    }
-    return {
-      detectionEngine: 'native', // 'native', 'zbar', 'zxing'
+    let initialSettings = saved ? JSON.parse(saved) : {
+      detectionEngine: 'native', // 'native', 'zbar', 'quagga'
       formats: ['code_128', 'code_39'],
       resolution: '1080',
       scanInterval: 100,
       showBoundingBox: true,
       vibrate: true
     };
-  });
 
-  // Migration for old settings
-  useEffect(() => {
-    if (settings.useNative !== undefined) {
-      setSettings(prev => {
-        const { useNative, ...rest } = prev;
-        return {
-          ...rest,
-          detectionEngine: useNative ? 'native' : 'zbar'
-        };
-      });
+    // Migration: If useNative exists but detectionEngine doesn't
+    if (initialSettings.useNative !== undefined && initialSettings.detectionEngine === undefined) {
+      initialSettings.detectionEngine = initialSettings.useNative ? 'native' : 'zbar';
+      delete initialSettings.useNative;
     }
-  }, []);
+
+    // Default to native if undefined
+    if (!initialSettings.detectionEngine) {
+      initialSettings.detectionEngine = 'native';
+    }
+
+    return initialSettings;
+  });
 
   // Load inventories on mount and when view changes to inventories
   useEffect(() => {

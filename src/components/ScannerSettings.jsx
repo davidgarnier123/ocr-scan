@@ -50,15 +50,15 @@ const ScannerSettings = ({ settings, onUpdate, onBack, embedded = false }) => {
                             <span className="option-desc">Robust for iOS. Good for 1D codes.</span>
                         </div>
                     </label>
-                    <label className={`radio-option ${settings.detectionEngine === 'zxing' ? 'selected' : ''}`}>
+                    <label className={`radio-option ${settings.detectionEngine === 'quagga' ? 'selected' : ''}`}>
                         <input
                             type="radio"
-                            checked={settings.detectionEngine === 'zxing'}
-                            onChange={() => handleChange('detectionEngine', 'zxing')}
+                            checked={settings.detectionEngine === 'quagga'}
+                            onChange={() => handleChange('detectionEngine', 'quagga')}
                         />
                         <div className="option-content">
-                            <span className="option-title">ZXing (JavaScript)</span>
-                            <span className="option-desc">Versatile, pure JS fallback.</span>
+                            <span className="option-title">Quagga2 (JS)</span>
+                            <span className="option-desc">Specialized for 1D barcodes (Code 128).</span>
                         </div>
                     </label>
                 </div>
