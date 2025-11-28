@@ -96,10 +96,10 @@ const BarcodeScanner = ({ onScan, settings }) => {
             // Check capabilities
             const track = stream.getVideoTracks()[0];
             const capabilities = track.getCapabilities();
-            const settings = track.getSettings();
+            const trackSettings = track.getSettings();
 
             console.log("Camera capabilities:", capabilities);
-            console.log("Current settings:", settings);
+            console.log("Current settings:", trackSettings);
 
             // Build optimal constraints
             const optimalConstraints = { advanced: [] };
@@ -173,7 +173,6 @@ const BarcodeScanner = ({ onScan, settings }) => {
       let detectedCode = null;
 
       // For non-native engines, limit processing size to improve performance
-      // Native engine handles high-res efficiently, but JS/WASM might choke
       let renderWidth = canvas.width;
       let renderHeight = canvas.height;
 
@@ -184,11 +183,6 @@ const BarcodeScanner = ({ onScan, settings }) => {
           renderWidth = MAX_WIDTH;
           renderHeight = renderHeight * ratio;
         }
-
-        // Apply filters for better contrast
-        ctx.filter = 'grayscale(1) contrast(1.2)';
-      } else {
-        ctx.filter = 'none';
       }
 
       // Clear previous drawings
@@ -196,9 +190,6 @@ const BarcodeScanner = ({ onScan, settings }) => {
 
       // Draw image to canvas (scaled if needed)
       ctx.drawImage(source, 0, 0, renderWidth, renderHeight);
-
-      // Reset filter
-      ctx.filter = 'none';
 
       if (settings.detectionEngine === 'native' && nativeDetectorRef.current) {
         // --- NATIVE DETECTION ---
@@ -242,9 +233,9 @@ const BarcodeScanner = ({ onScan, settings }) => {
           const result = await new Promise((resolve) => {
             Quagga.decodeSingle({
               src: dataUrl,
-              numOfWorkers: 0, // Main thread
+              numOfWorkers: 0,
               inputStream: {
-                size: 800 // Optimal size
+                size: 800
               },
               decoder: {
                 readers: readers
@@ -262,26 +253,19 @@ const BarcodeScanner = ({ onScan, settings }) => {
           if (result && result.codeResult) {
             detectedCode = result.codeResult.code;
             console.log("Quagga detected:", detectedCode);
-
-            // Draw box if available
-            if (settings.showBoundingBox && result.box) {
-              // Quagga box drawing is complex to map back if resized/located
-              // Skipping for now to keep performance high
-            }
           }
         } catch (err) {
           console.warn("Quagga detection error:", err);
         }
       } else {
         // --- ZBAR WASM DETECTION ---
-        // Optimization: ROI (Region of Interest)
-        // Only scan the center 60% of the image to reduce noise and improve speed
+        // ROI (Region of Interest) - scan center 60%
         const roiX = Math.floor(renderWidth * 0.2);
         const roiY = Math.floor(renderHeight * 0.2);
         const roiW = Math.floor(renderWidth * 0.6);
         const roiH = Math.floor(renderHeight * 0.6);
 
-        // Draw ROI guide for debugging/user feedback (optional, maybe just a box)
+        // Draw ROI guide
         if (settings.showBoundingBox) {
           ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
           ctx.lineWidth = 2;
@@ -295,7 +279,7 @@ const BarcodeScanner = ({ onScan, settings }) => {
           const result = results[0];
           detectedCode = result.decode ? result.decode() : result.data;
 
-          // Draw box (coordinates need to be offset by ROI)
+          // Draw box (offset by ROI)
           if (settings.showBoundingBox && result.points && result.points.length > 0) {
             ctx.beginPath();
             ctx.lineWidth = 4;
@@ -340,12 +324,10 @@ const BarcodeScanner = ({ onScan, settings }) => {
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
 
-        // Detect
         await detectFromSource(video, canvas, ctx);
       }
     }
 
-    // Schedule next scan
     if (isScanning) {
       scanIntervalRef.current = requestAnimationFrame(scanFrame);
     }
@@ -355,7 +337,6 @@ const BarcodeScanner = ({ onScan, settings }) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Stop live scanning if active
     if (isScanning) {
       stopScanning();
     }
@@ -370,11 +351,9 @@ const BarcodeScanner = ({ onScan, settings }) => {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
 
-        // Resize canvas to match image
         canvas.width = img.width;
         canvas.height = img.height;
 
-        // Detect
         const found = await detectFromSource(img, canvas, ctx);
         if (!found) {
           setError("No barcode detected in image.");
