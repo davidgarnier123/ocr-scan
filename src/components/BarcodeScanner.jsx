@@ -133,20 +133,6 @@ const BarcodeScanner = ({ onScan, settings }) => {
         if (renderWidth > MAX_WIDTH) {
           const ratio = MAX_WIDTH / renderWidth;
           renderWidth = MAX_WIDTH;
-          renderHeight = renderHeight * ratio;
-        }
-      }
-
-      // Clear previous drawings
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Draw image to canvas (scaled if needed)
-      ctx.drawImage(source, 0, 0, renderWidth, renderHeight);
-
-      if (settings.detectionEngine === 'native' && nativeDetectorRef.current) {
-        // --- NATIVE DETECTION ---
-        try {
-          const barcodes = await nativeDetectorRef.current.detect(source);
           if (barcodes.length > 0) {
             const barcode = barcodes[0];
             detectedCode = barcode.rawValue;
@@ -253,7 +239,7 @@ const BarcodeScanner = ({ onScan, settings }) => {
 
       const video = videoRef.current;
       const canvas = canvasRef.current;
-      const ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
       if (video.readyState === video.HAVE_ENOUGH_DATA) {
         canvas.width = video.videoWidth;
