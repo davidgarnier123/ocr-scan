@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as zbarWasm from '@undecaf/zbar-wasm';
+import React, { useEffect, useRef, useState } from 'react';
+import * as zbarWasm from '@undecaf/zbar-wasm';
 import Quagga from '@ericblade/quagga2';
 import './BarcodeScanner.css';
 
@@ -12,6 +14,8 @@ const BarcodeScanner = ({ onScan, settings }) => {
   const [error, setError] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
   const [lastScanned, setLastScanned] = useState(null);
+  const [hasTorch, setHasTorch] = useState(false);
+  const [torchOn, setTorchOn] = useState(false);
 
   const fileInputRef = useRef(null);
 
@@ -26,6 +30,8 @@ const BarcodeScanner = ({ onScan, settings }) => {
 
   const startScanning = async () => {
     setError(null);
+    setHasTorch(false);
+    setTorchOn(false);
 
     // Stop any existing stream first
     stopScanning();
@@ -79,12 +85,20 @@ const BarcodeScanner = ({ onScan, settings }) => {
             setIsScanning(true);
             scanFrame();
 
-            // Apply track constraints if possible (double check focus)
+            // Check capabilities
             const track = stream.getVideoTracks()[0];
             const capabilities = track.getCapabilities();
+
+            // Focus
             if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
               await track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] });
             }
+
+            // Torch
+            if (capabilities.torch) {
+              setHasTorch(true);
+            }
+
           } catch (playErr) {
             console.error("Error playing video:", playErr);
             setError("Could not start video stream: " + playErr.message);
@@ -94,6 +108,18 @@ const BarcodeScanner = ({ onScan, settings }) => {
     } catch (err) {
       console.error("Error accessing camera:", err);
       setError("Camera error: " + (err.message || err));
+    }
+  };
+
+  const toggleTorch = async () => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      const track = videoRef.current.srcObject.getVideoTracks()[0];
+      try {
+        await track.applyConstraints({ advanced: [{ torch: !torchOn }] });
+        setTorchOn(!torchOn);
+      } catch (e) {
+        console.error("Failed to toggle torch", e);
+      }
     }
   };
 
@@ -113,6 +139,11 @@ const BarcodeScanner = ({ onScan, settings }) => {
           renderWidth = MAX_WIDTH;
           renderHeight = renderHeight * ratio;
         }
+
+        // Apply filters for better contrast
+        ctx.filter = 'grayscale(1) contrast(1.2)';
+      } else {
+        ctx.filter = 'none';
       }
 
       // Clear previous drawings
@@ -120,6 +151,9 @@ const BarcodeScanner = ({ onScan, settings }) => {
 
       // Draw image to canvas (scaled if needed)
       ctx.drawImage(source, 0, 0, renderWidth, renderHeight);
+
+      // Reset filter
+      ctx.filter = 'none';
 
       if (settings.detectionEngine === 'native' && nativeDetectorRef.current) {
         // --- NATIVE DETECTION ---
@@ -158,22 +192,23 @@ const BarcodeScanner = ({ onScan, settings }) => {
 
           if (readers.length === 0) readers.push('code_128_reader'); // Default
 
-          // Convert canvas to data URL for Quagga (or pass canvas directly if supported, 
-          // but decodeSingle expects src as base64 or url)
-          // Actually Quagga.decodeSingle config takes 'src' which can be a data URL.
           const dataUrl = canvas.toDataURL('image/jpeg');
 
           const result = await new Promise((resolve) => {
             Quagga.decodeSingle({
               src: dataUrl,
-              numOfWorkers: 0, // Main thread for simplicity in this loop
+              numOfWorkers: 0, // Main thread
               inputStream: {
-                size: 800 // restrict input size
+                size: 800 // Optimal size
               },
               decoder: {
                 readers: readers
               },
-              locate: true
+              locate: true,
+              locator: {
+                patchSize: 'medium',
+                halfSample: true
+              }
             }, (res) => {
               resolve(res);
             });
@@ -185,13 +220,8 @@ const BarcodeScanner = ({ onScan, settings }) => {
 
             // Draw box if available
             if (settings.showBoundingBox && result.box) {
-              ctx.beginPath();
-              ctx.lineWidth = 4;
-              ctx.strokeStyle = "#00FF00";
-              // Quagga returns box as [ [x,y], [x,y], ... ] or object?
-              // It returns 'box' in the result object, but coordinate mapping from processed image 
-              // back to canvas might be tricky if Quagga resized it.
-              // For now, skip complex box drawing for Quagga or implement simple one.
+              // Quagga box drawing is complex to map back if resized/located
+              // Skipping for now to keep performance high
             }
           }
         } catch (err) {
@@ -199,29 +229,36 @@ const BarcodeScanner = ({ onScan, settings }) => {
         }
       } else {
         // --- ZBAR WASM DETECTION ---
-        // Ensure we have image data from the canvas
-        // Only get data from the rendered area
-        const imageData = ctx.getImageData(0, 0, renderWidth, renderHeight);
+        // Optimization: ROI (Region of Interest)
+        // Only scan the center 60% of the image to reduce noise and improve speed
+        const roiX = Math.floor(renderWidth * 0.2);
+        const roiY = Math.floor(renderHeight * 0.2);
+        const roiW = Math.floor(renderWidth * 0.6);
+        const roiH = Math.floor(renderHeight * 0.6);
+
+        // Draw ROI guide for debugging/user feedback (optional, maybe just a box)
+        if (settings.showBoundingBox) {
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(roiX, roiY, roiW, roiH);
+        }
+
+        const imageData = ctx.getImageData(roiX, roiY, roiW, roiH);
         const results = await zbarWasm.scanImageData(imageData);
 
         if (results.length > 0) {
-          // Filter results based on settings if possible, or just take the first valid one
-          // ZBar returns 'type' which is the symbology (e.g. 'CODE-128')
-          // We might need to map settings.formats to ZBar types if we want strict filtering
-          // For now, we accept all and let the user verify
-
           const result = results[0];
           detectedCode = result.decode ? result.decode() : result.data;
 
-          // Draw box
+          // Draw box (coordinates need to be offset by ROI)
           if (settings.showBoundingBox && result.points && result.points.length > 0) {
             ctx.beginPath();
             ctx.lineWidth = 4;
             ctx.strokeStyle = "#00FF00";
             const points = result.points;
-            ctx.moveTo(points[0].x, points[0].y);
+            ctx.moveTo(points[0].x + roiX, points[0].y + roiY);
             for (let i = 1; i < points.length; i++) {
-              ctx.lineTo(points[i].x, points[i].y);
+              ctx.lineTo(points[i].x + roiX, points[i].y + roiY);
             }
             ctx.closePath();
             ctx.stroke();
@@ -311,6 +348,8 @@ const BarcodeScanner = ({ onScan, settings }) => {
 
   const stopScanning = () => {
     setIsScanning(false);
+    setHasTorch(false);
+    setTorchOn(false);
     if (scanIntervalRef.current) {
       cancelAnimationFrame(scanIntervalRef.current);
     }
@@ -349,6 +388,15 @@ const BarcodeScanner = ({ onScan, settings }) => {
       {isScanning && (
         <div className="scanner-overlay-ui">
           <div className="scan-region-marker"></div>
+          {hasTorch && (
+            <button
+              className={`btn - torch ${torchOn ? 'active' : ''} `}
+              onClick={toggleTorch}
+              title="Toggle Flashlight"
+            >
+              {torchOn ? '🔦 ON' : '🔦 OFF'}
+            </button>
+          )}
         </div>
       )}
 
