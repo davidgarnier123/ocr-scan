@@ -46,30 +46,8 @@ const ScannerSettings = ({ settings, onUpdate, onBack, embedded = false }) => {
                             onChange={() => handleChange('detectionEngine', 'zbar')}
                         />
                         <div className="option-content">
-                            <span className="option-title">ZBar (WASM)</span>
-                            <span className="option-desc">Robust for iOS. Good for 1D codes.</span>
-                        </div>
-                    </label>
-                    <label className={`radio-option ${settings.detectionEngine === 'quagga' ? 'selected' : ''}`}>
-                        <input
-                            type="radio"
-                            checked={settings.detectionEngine === 'quagga'}
-                            onChange={() => handleChange('detectionEngine', 'quagga')}
-                        />
-                        <div className="option-content">
-                            <span className="option-title">Quagga2 (JS)</span>
-                            <span className="option-desc">Specialized for 1D barcodes (Code 128).</span>
-                        </div>
-                    </label>
-                    <label className={`radio-option ${settings.detectionEngine === 'html5qrcode' ? 'selected' : ''}`}>
-                        <input
-                            type="radio"
-                            checked={settings.detectionEngine === 'html5qrcode'}
-                            onChange={() => handleChange('detectionEngine', 'html5qrcode')}
-                        />
-                        <div className="option-content">
-                            <span className="option-title">Html5-QRCode</span>
-                            <span className="option-desc">Alternative JS scanner, good compatibility.</span>
+                            <span className="option-title">ZBar (WASM) - Optimisé iOS</span>
+                            <span className="option-desc">Robust for iOS Safari. Optimized 1D barcode detection.</span>
                         </div>
                     </label>
                 </div>

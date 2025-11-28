@@ -1,7 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as zbarWasm from '@undecaf/zbar-wasm';
-import Quagga from '@ericblade/quagga2';
-import { Html5Qrcode } from 'html5-qrcode';
 import './BarcodeScanner.css';
 
 const BarcodeScanner = ({ onScan, settings }) => {
@@ -217,74 +215,8 @@ const BarcodeScanner = ({ onScan, settings }) => {
         } catch (err) {
           console.warn("Native detection error:", err);
         }
-      } else if (settings.detectionEngine === 'quagga') {
-        // --- QUAGGA2 DETECTION ---
-        try {
-          // Map settings formats to Quagga readers
-          const readers = [];
-          if (settings.formats.includes('code_128')) readers.push('code_128_reader');
-          if (settings.formats.includes('code_39')) readers.push('code_39_reader');
-          if (settings.formats.includes('ean_13')) readers.push('ean_reader');
-          if (settings.formats.includes('upc_a')) readers.push('upc_reader');
-
-          if (readers.length === 0) readers.push('code_128_reader'); // Default
-
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-
-          const result = await new Promise((resolve) => {
-            Quagga.decodeSingle({
-              src: dataUrl,
-              numOfWorkers: 0,
-              inputStream: {
-                size: 800
-              },
-              decoder: {
-                readers: readers
-              },
-              locate: true,
-              locator: {
-                patchSize: 'medium',
-                halfSample: true
-              }
-            }, (res) => {
-              resolve(res);
-            });
-          });
-
-          if (result && result.codeResult) {
-            detectedCode = result.codeResult.code;
-            console.log("Quagga detected:", detectedCode);
-          }
-        } catch (err) {
-          console.warn("Quagga detection error:", err);
-        }
-      } else if (settings.detectionEngine === 'html5qrcode') {
-        // --- HTML5-QRCODE DETECTION ---
-        try {
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-
-          // Html5Qrcode utilise une approche différente - on doit créer une instance temporaire
-          const html5QrCode = new Html5Qrcode("temp-reader");
-
-          // Convertir dataURL en File
-          const response = await fetch(dataUrl);
-          const blob = await response.blob();
-          const file = new File([blob], "scan.jpg", { type: "image/jpeg" });
-
-          const result = await html5QrCode.scanFile(file, false);
-
-          if (result) {
-            detectedCode = result;
-            console.log("Html5-QRCode detected:", detectedCode);
-          }
-
-          // Cleanup
-          html5QrCode.clear();
-        } catch (err) {
-          console.warn("Html5-QRCode detection error:", err);
-        }
       } else {
-        // --- ZBAR WASM DETECTION ---
+        // --- ZBAR WASM DETECTION (optimisé pour iOS) ---
         // ROI (Region of Interest) - scan center 60%
         const roiX = Math.floor(renderWidth * 0.2);
         const roiY = Math.floor(renderHeight * 0.2);

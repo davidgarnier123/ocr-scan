@@ -56,8 +56,6 @@
   width: 300px;
   height: 180px;
   position: relative;
-  margin-bottom: auto;
-  margin-top: 20vh;
 }
 
 .corner {
@@ -323,7 +321,6 @@
   .scan-frame {
     width: 280px;
     height: 160px;
-    margin-top: 15vh;
   }
 
   .corner {
