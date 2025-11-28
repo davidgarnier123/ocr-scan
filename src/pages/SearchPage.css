@@ -179,29 +179,6 @@
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 999;
-    cursor: default;
-}
-
-/* Search Results */
-.search-results {
-    flex: 1;
-    overflow-y: auto;
-    padding: var(--spacing-md);
-}
-
-.results-count {
-    margin: 0 0 var(--spacing-md) 0;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--gray-700);
-}
-
-/* Equipment Grid */
-.equipment-grid {
-    display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: var(--spacing-md);
 }

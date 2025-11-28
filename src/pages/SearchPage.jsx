@@ -9,6 +9,8 @@ const SearchPage = () => {
     const [brandFilter, setBrandFilter] = useState('');
     const [selectedEquipment, setSelectedEquipment] = useState(null);
     const [showFilters, setShowFilters] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 50;
 
     const equipmentDatabase = getEquipmentDatabase();
     const databaseMeta = getDatabaseMeta();
@@ -56,10 +58,33 @@ const SearchPage = () => {
         });
     }, [equipmentDatabase, searchTerm, typeFilter, brandFilter]);
 
+    // Pagination
+    const totalPages = Math.ceil(filteredEquipments.length / ITEMS_PER_PAGE);
+    const paginatedEquipments = useMemo(() => {
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        const endIndex = startIndex + ITEMS_PER_PAGE;
+        return filteredEquipments.slice(startIndex, endIndex);
+    }, [filteredEquipments, currentPage]);
+
+    // Reset to page 1 when filters change
+    useMemo(() => {
+        setCurrentPage(1);
+    }, [searchTerm, typeFilter, brandFilter]);
+
     const handleClearFilters = () => {
         setSearchTerm('');
         setTypeFilter('');
         setBrandFilter('');
+    };
+
+    const handlePreviousPage = () => {
+        setCurrentPage(prev => Math.max(1, prev - 1));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleNextPage = () => {
+        setCurrentPage(prev => Math.min(totalPages, prev + 1));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     if (!databaseMeta) {
@@ -133,9 +158,14 @@ const SearchPage = () => {
             </div>
 
             <div className="search-results">
-                <p className="results-count">
-                    {filteredEquipments.length} résultat{filteredEquipments.length > 1 ? 's' : ''}
-                </p>
+                <div className="results-header">
+                    <p className="results-count">
+                        {filteredEquipments.length} résultat{filteredEquipments.length > 1 ? 's' : ''}
+                        {filteredEquipments.length > ITEMS_PER_PAGE && (
+                            <span className="page-info"> • Page {currentPage}/{totalPages}</span>
+                        )}
+                    </p>
+                </div>
 
                 {filteredEquipments.length === 0 ? (
                     <div className="no-results">
@@ -144,27 +174,51 @@ const SearchPage = () => {
                         <p>Essayez de modifier vos critères de recherche</p>
                     </div>
                 ) : (
-                    <div className="equipment-grid">
-                        {filteredEquipments.map((equipment, index) => (
-                            <div
-                                key={index}
-                                className="equipment-card"
-                                onClick={() => setSelectedEquipment(equipment)}
-                            >
-                                <span className="eq-icon">
-                                    {getEquipmentIcon(equipment.equipment_type)}
-                                </span>
-                                <div className="eq-info">
-                                    <h3>{equipment.brand} {equipment.model}</h3>
-                                    <p className="eq-type">{equipment.equipment_type}</p>
-                                    <p className="eq-code">{equipment.barcode_id}</p>
-                                    {equipment.agent_name && (
-                                        <p className="eq-agent">👤 {equipment.agent_name}</p>
-                                    )}
+                    <>
+                        <div className="equipment-grid">
+                            {paginatedEquipments.map((equipment, index) => (
+                                <div
+                                    key={index}
+                                    className="equipment-card"
+                                    onClick={() => setSelectedEquipment(equipment)}
+                                >
+                                    <span className="eq-icon">
+                                        {getEquipmentIcon(equipment.equipment_type)}
+                                    </span>
+                                    <div className="eq-info">
+                                        <h3>{equipment.brand} {equipment.model}</h3>
+                                        <p className="eq-type">{equipment.equipment_type}</p>
+                                        <p className="eq-code">{equipment.barcode_id}</p>
+                                        {equipment.agent_name && (
+                                            <p className="eq-agent">👤 {equipment.agent_name}</p>
+                                        )}
+                                    </div>
                                 </div>
+                            ))}
+                        </div>
+
+                        {totalPages > 1 && (
+                            <div className="pagination">
+                                <button
+                                    className="btn-page"
+                                    onClick={handlePreviousPage}
+                                    disabled={currentPage === 1}
+                                >
+                                    ← Précédent
+                                </button>
+                                <span className="page-indicator">
+                                    Page {currentPage} / {totalPages}
+                                </span>
+                                <button
+                                    className="btn-page"
+                                    onClick={handleNextPage}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    Suivant →
+                                </button>
                             </div>
-                        ))}
-                    </div>
+                        )}
+                    </>
                 )}
             </div>
 

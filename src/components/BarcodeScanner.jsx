@@ -8,6 +8,7 @@ const BarcodeScanner = ({ onScan, settings }) => {
   const scanIntervalRef = useRef(null);
   const nativeDetectorRef = useRef(null);
   const lastScanTimeRef = useRef(0);
+  const hideToastTimerRef = useRef(null);
   const [error, setError] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
   const [lastScanned, setLastScanned] = useState(null);
@@ -255,7 +256,19 @@ const BarcodeScanner = ({ onScan, settings }) => {
 
       if (detectedCode) {
         console.log("Detected:", detectedCode);
+
+        // Clear any existing hide timer
+        if (hideToastTimerRef.current) {
+          clearTimeout(hideToastTimerRef.current);
+        }
+
         setLastScanned(detectedCode);
+
+        // Hide toast after 3 seconds
+        hideToastTimerRef.current = setTimeout(() => {
+          setLastScanned(null);
+        }, 3000);
+
         if (detectedCode.length >= 3) {
           onScan(detectedCode);
         }
@@ -332,8 +345,14 @@ const BarcodeScanner = ({ onScan, settings }) => {
     setIsScanning(false);
     setHasTorch(false);
     setTorchOn(false);
+    setLastScanned(null);
+
     if (scanIntervalRef.current) {
       cancelAnimationFrame(scanIntervalRef.current);
+    }
+
+    if (hideToastTimerRef.current) {
+      clearTimeout(hideToastTimerRef.current);
     }
 
     if (videoRef.current && videoRef.current.srcObject) {
