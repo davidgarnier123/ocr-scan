@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as zbarWasm from '@undecaf/zbar-wasm';
-import { BrowserMultiFormatReader, NotFoundException } from '@zxing/library';
+import { BrowserMultiFormatReader, NotFoundException, BarcodeFormat, DecodeHintType } from '@zxing/library';
 import './BarcodeScanner.css';
 
 const BarcodeScanner = ({ onScan, settings }) => {
@@ -51,8 +51,22 @@ const BarcodeScanner = ({ onScan, settings }) => {
         }
       } else if (settings.detectionEngine === 'zxing') {
         try {
-          zxingReaderRef.current = new BrowserMultiFormatReader();
-          console.log("Using ZXing Reader");
+          const hints = new Map();
+          const formats = [];
+
+          if (settings.formats.includes('code_128')) formats.push(BarcodeFormat.CODE_128);
+          if (settings.formats.includes('code_39')) formats.push(BarcodeFormat.CODE_39);
+          if (settings.formats.includes('ean_13')) formats.push(BarcodeFormat.EAN_13);
+          if (settings.formats.includes('qr_code')) formats.push(BarcodeFormat.QR_CODE);
+          if (settings.formats.includes('upc_a')) formats.push(BarcodeFormat.UPC_A);
+
+          if (formats.length > 0) {
+            hints.set(DecodeHintType.POSSIBLE_FORMATS, formats);
+          }
+          hints.set(DecodeHintType.TRY_HARDER, true);
+
+          zxingReaderRef.current = new BrowserMultiFormatReader(hints);
+          console.log("Using ZXing Reader with hints:", hints);
         } catch (e) {
           console.error("ZXing failed init", e);
         }
@@ -109,9 +123,25 @@ const BarcodeScanner = ({ onScan, settings }) => {
     try {
       let detectedCode = null;
 
+      // For non-native engines, limit processing size to improve performance
+      // Native engine handles high-res efficiently, but JS/WASM might choke
+      let renderWidth = canvas.width;
+      let renderHeight = canvas.height;
+
+      if (settings.detectionEngine !== 'native') {
+        const MAX_WIDTH = 1280;
+        if (renderWidth > MAX_WIDTH) {
+          const ratio = MAX_WIDTH / renderWidth;
+          renderWidth = MAX_WIDTH;
+          renderHeight = renderHeight * ratio;
+        }
+      }
+
       // Clear previous drawings
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
+
+      // Draw image to canvas (scaled if needed)
+      ctx.drawImage(source, 0, 0, renderWidth, renderHeight);
 
       if (settings.detectionEngine === 'native' && nativeDetectorRef.current) {
         // --- NATIVE DETECTION ---
@@ -171,7 +201,8 @@ const BarcodeScanner = ({ onScan, settings }) => {
       } else {
         // --- ZBAR WASM DETECTION ---
         // Ensure we have image data from the canvas
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        // Only get data from the rendered area
+        const imageData = ctx.getImageData(0, 0, renderWidth, renderHeight);
         const results = await zbarWasm.scanImageData(imageData);
 
         if (results.length > 0) {
