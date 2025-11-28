@@ -11,6 +11,7 @@ const ScanSession = ({ settings, onInventoryCreated }) => {
     const [selectedAgent, setSelectedAgent] = useState(null);
     const [notes, setNotes] = useState('');
     const [selectedEquipment, setSelectedEquipment] = useState(null);
+    const [manualCode, setManualCode] = useState('');
 
     // Sauvegarder la session à chaque changement
     useEffect(() => {
@@ -22,6 +23,17 @@ const ScanSession = ({ settings, onInventoryCreated }) => {
             if (prev.includes(code)) return prev;
             return [...prev, code];
         });
+    };
+
+    const handleManualAdd = () => {
+        const code = manualCode.trim();
+        // Valider que c'est un nombre à 7 chiffres
+        if (!/^\d{7}$/.test(code)) {
+            alert('Veuillez entrer un code à 7 chiffres');
+            return;
+        }
+        handleScan(code);
+        setManualCode('');
     };
 
     const handleRemoveCode = (index) => {
@@ -79,6 +91,26 @@ const ScanSession = ({ settings, onInventoryCreated }) => {
                     onScan={handleScan}
                     settings={settings}
                 />
+
+                {/* Input manuel */}
+                <div className="manual-input-container">
+                    <input
+                        type="text"
+                        className="manual-code-input"
+                        placeholder="Ou saisir un code à 7 chiffres"
+                        value={manualCode}
+                        onChange={(e) => setManualCode(e.target.value.replace(/\D/g, '').slice(0, 7))}
+                        onKeyPress={(e) => e.key === 'Enter' && handleManualAdd()}
+                        maxLength={7}
+                    />
+                    <button
+                        className="btn-add-manual"
+                        onClick={handleManualAdd}
+                        disabled={manualCode.length !== 7}
+                    >
+                        + Ajouter
+                    </button>
+                </div>
             </div>
 
             {scannedCodes.length > 0 && (

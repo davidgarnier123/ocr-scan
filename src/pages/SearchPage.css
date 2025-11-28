@@ -170,22 +170,6 @@
 
 .no-agent-found {
     padding: 12px;
-    text-align: center;
-    color: var(--gray-500);
-    font-size: 13px;
-}
-
-.dropdown-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: var(--spacing-md);
-}
-
-.equipment-card {
-    background: var(--white);
-    padding: var(--spacing-lg);
     border-radius: var(--radius-md);
     border: 1px solid var(--gray-200);
     cursor: pointer;
