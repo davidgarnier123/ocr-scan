@@ -1,7 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as zbarWasm from '@undecaf/zbar-wasm';
-import React, { useEffect, useRef, useState } from 'react';
-import * as zbarWasm from '@undecaf/zbar-wasm';
 import Quagga from '@ericblade/quagga2';
 import './BarcodeScanner.css';
 
@@ -70,8 +68,18 @@ const BarcodeScanner = ({ onScan, settings }) => {
           facingMode: "environment",
           width: { ideal: constraints.width },
           height: { ideal: constraints.height },
+          aspectRatio: { ideal: 16 / 9 },
+          // Optimisations pour la détection de codes-barres
+          focusMode: { ideal: "continuous" },
+          exposureMode: { ideal: "continuous" },
+          whiteBalanceMode: { ideal: "continuous" },
           // Try to force continuous focus for better scanning
-          advanced: [{ focusMode: "continuous" }, { focusMode: "macro" }]
+          advanced: [
+            { focusMode: "continuous" },
+            { focusMode: "macro" },
+            { exposureMode: "continuous" },
+            { whiteBalanceMode: "continuous" }
+          ]
         }
       });
 
@@ -88,15 +96,52 @@ const BarcodeScanner = ({ onScan, settings }) => {
             // Check capabilities
             const track = stream.getVideoTracks()[0];
             const capabilities = track.getCapabilities();
+            const settings = track.getSettings();
+
+            console.log("Camera capabilities:", capabilities);
+            console.log("Current settings:", settings);
+
+            // Build optimal constraints
+            const optimalConstraints = { advanced: [] };
 
             // Focus
-            if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
-              await track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] });
+            if (capabilities.focusMode) {
+              if (capabilities.focusMode.includes('continuous')) {
+                optimalConstraints.advanced.push({ focusMode: 'continuous' });
+              } else if (capabilities.focusMode.includes('manual')) {
+                // Si continuous n'est pas disponible, essayer manual avec focusDistance
+                if (capabilities.focusDistance) {
+                  optimalConstraints.advanced.push({
+                    focusMode: 'manual',
+                    focusDistance: capabilities.focusDistance.max * 0.3 // Focus à ~30cm
+                  });
+                }
+              }
+            }
+
+            // Exposure
+            if (capabilities.exposureMode && capabilities.exposureMode.includes('continuous')) {
+              optimalConstraints.advanced.push({ exposureMode: 'continuous' });
+            }
+
+            // White Balance
+            if (capabilities.whiteBalanceMode && capabilities.whiteBalanceMode.includes('continuous')) {
+              optimalConstraints.advanced.push({ whiteBalanceMode: 'continuous' });
             }
 
             // Torch
             if (capabilities.torch) {
               setHasTorch(true);
+            }
+
+            // Apply optimal constraints
+            if (optimalConstraints.advanced.length > 0) {
+              try {
+                await track.applyConstraints(optimalConstraints);
+                console.log("Applied optimal constraints:", optimalConstraints);
+              } catch (e) {
+                console.warn("Failed to apply some constraints:", e);
+              }
             }
 
           } catch (playErr) {
@@ -192,7 +237,7 @@ const BarcodeScanner = ({ onScan, settings }) => {
 
           if (readers.length === 0) readers.push('code_128_reader'); // Default
 
-          const dataUrl = canvas.toDataURL('image/jpeg');
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
 
           const result = await new Promise((resolve) => {
             Quagga.decodeSingle({
@@ -390,7 +435,7 @@ const BarcodeScanner = ({ onScan, settings }) => {
           <div className="scan-region-marker"></div>
           {hasTorch && (
             <button
-              className={`btn - torch ${torchOn ? 'active' : ''} `}
+              className={`btn-torch ${torchOn ? 'active' : ''}`}
               onClick={toggleTorch}
               title="Toggle Flashlight"
             >
@@ -414,7 +459,5 @@ const BarcodeScanner = ({ onScan, settings }) => {
     </div>
   );
 };
-
-
 
 export default BarcodeScanner;
