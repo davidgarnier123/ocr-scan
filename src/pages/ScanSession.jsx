@@ -91,24 +91,28 @@ const ScanSession = ({ settings, onInventoryCreated }) => {
                     onScan={handleScan}
                     settings={settings}
                 />
+            </div>
 
-                {/* Input manuel */}
+            {/* Input manuel */}
+            <div className="manual-input-section">
                 <div className="manual-input-container">
                     <input
                         type="text"
                         className="manual-code-input"
-                        placeholder="Ou saisir un code à 7 chiffres"
+                        placeholder="Saisir un code à 7 chiffres"
                         value={manualCode}
                         onChange={(e) => setManualCode(e.target.value.replace(/\D/g, '').slice(0, 7))}
                         onKeyPress={(e) => e.key === 'Enter' && handleManualAdd()}
                         maxLength={7}
+                        inputMode="numeric"
                     />
                     <button
                         className="btn-add-manual"
                         onClick={handleManualAdd}
                         disabled={manualCode.length !== 7}
                     >
-                        + Ajouter
+                        <span className="btn-icon">+</span>
+                        Ajouter
                     </button>
                 </div>
             </div>

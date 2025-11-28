@@ -1,17 +1,111 @@
 .scan-session-page {
     display: flex;
     flex-direction: column;
+    height: calc(100vh - 60px);
+    overflow: hidden;
+    background: var(--gray-50);
+}
+
+.scanner-container {
+    flex-shrink: 0;
+    height: 280px;
+    background: var(--gray-900);
+    overflow: hidden;
+}
+
+/* Input manuel - Section dédiée */
+.manual-input-section {
+    flex-shrink: 0;
+    padding: var(--spacing-md);
+    background: var(--white);
+    border-bottom: 2px solid var(--gray-200);
+}
+
+.manual-input-container {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: stretch;
+}
+
+.manual-code-input {
+    flex: 1;
+    padding: 14px 16px;
+    border: 2px solid var(--gray-300);
+    border-radius: var(--radius-md);
+    background: var(--white);
+    color: var(--gray-900);
+    font-size: 16px;
+    font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-align: center;
+    outline: none;
+    transition: all var(--transition-base);
+}
+
+.manual-code-input::placeholder {
+    color: var(--gray-400);
+    font-family: system-ui, -apple-system, sans-serif;
+    letter-spacing: normal;
+    font-weight: 400;
+    font-size: 14px;
+}
+
+.manual-code-input:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px var(--soft-blue);
+    background: var(--soft-blue);
+}
+
+.btn-add-manual {
+    padding: 14px 24px;
+    background: var(--blue-gradient);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-add-manual .btn-icon {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.btn-add-manual:active:not(:disabled) {
+    transform: scale(0.96);
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+}
+
+.btn-add-manual:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.scanned-items {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
 }
 
 .scanned-header {
-    padding: var(--spacing-lg) var(--spacing-md);
+    padding: var(--spacing-md);
     background: var(--white);
     border-bottom: 1px solid var(--gray-200);
+    flex-shrink: 0;
 }
 
 .scanned-header h2 {
-    margin: 0 0 var(--spacing-md) 0;
+    margin: 0 0 var(--spacing-sm) 0;
     font-size: 18px;
     font-weight: 700;
     color: var(--gray-900);
@@ -27,7 +121,7 @@
     flex: 1;
     padding: 12px var(--spacing-md);
     border: none;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-md);
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
@@ -60,7 +154,7 @@
 .scanned-list {
     flex: 1;
     overflow-y: auto;
-    padding: var(--spacing-md);
+    padding: var(--spacing-sm);
     display: flex;
     flex-direction: column;
     gap: var(--spacing-sm);
@@ -68,11 +162,11 @@
 
 .scanned-item {
     background: var(--white);
-    padding: 1rem;
+    padding: var(--spacing-md);
     border-radius: var(--radius-md);
     display: flex;
     align-items: center;
-    gap: 0.875rem;
+    gap: var(--spacing-sm);
     border: 1px solid var(--gray-200);
     transition: all var(--transition-base);
 }
@@ -81,14 +175,10 @@
     cursor: pointer;
 }
 
-.scanned-item[style*="pointer"]:hover {
+.scanned-item[style*="pointer"]:active {
     background: var(--gray-50);
     border-color: var(--primary-blue-light);
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
-}
-
-.scanned-item:active {
-    transform: scale(0.99);
+    transform: scale(0.98);
 }
 
 .item-number {
@@ -112,7 +202,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
     min-width: 0;
 }
 
@@ -121,11 +211,11 @@
     font-size: 15px;
     font-weight: 700;
     color: var(--gray-900);
-    letter-spacing: 0.3px;
+    letter-spacing: 0.5px;
 }
 
 .item-name {
-    font-size: 14px;
+    font-size: 13px;
     color: var(--gray-600);
     font-weight: 500;
 }
@@ -298,23 +388,4 @@
 .btn-confirm:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-}
-
-/* Mobile */
-@media (max-width: 768px) {
-    .scan-session-page {
-        height: calc(100vh - 125px);
-    }
-
-    .scanner-container {
-        height: 240px;
-    }
-
-    .scanned-header {
-        padding: var(--spacing-md);
-    }
-
-    .scanned-list {
-        padding-bottom: calc(var(--spacing-lg) + env(safe-area-inset-bottom, 0px));
-    }
 }
