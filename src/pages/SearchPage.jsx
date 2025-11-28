@@ -108,53 +108,19 @@ const SearchPage = () => {
                 </p>
             </div>
 
-            <div className={`search-filters ${showFilters ? 'expanded' : ''}`}>
-                <div className="filters-header-mobile">
-                    <button
-                        className="btn-toggle-filters"
-                        onClick={() => setShowFilters(!showFilters)}
-                    >
-                        {showFilters ? 'Masquer les filtres' : 'Afficher les filtres 🔍'}
+            <div className="search-filters">
+                <input
+                    type="search"
+                    className="search-input"
+                    placeholder="🔍 Rechercher par code, marque, modèle, agent..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                {searchTerm && (
+                    <button className="btn-clear-search" onClick={() => setSearchTerm('')}>
+                        ✕
                     </button>
-                </div>
-
-                <div className="filters-content">
-                    <input
-                        type="search"
-                        className="search-input"
-                        placeholder="🔍 Rechercher..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-
-                    <select
-                        className="filter-select"
-                        value={typeFilter}
-                        onChange={(e) => setTypeFilter(e.target.value)}
-                    >
-                        <option value="">Tous les types</option>
-                        {types.map(type => (
-                            <option key={type} value={type}>{type}</option>
-                        ))}
-                    </select>
-
-                    <select
-                        className="filter-select"
-                        value={brandFilter}
-                        onChange={(e) => setBrandFilter(e.target.value)}
-                    >
-                        <option value="">Toutes les marques</option>
-                        {brands.map(brand => (
-                            <option key={brand} value={brand}>{brand}</option>
-                        ))}
-                    </select>
-
-                    {(searchTerm || typeFilter || brandFilter) && (
-                        <button className="btn-clear-filters" onClick={handleClearFilters}>
-                            ✕
-                        </button>
-                    )}
-                </div>
+                )}
             </div>
 
             <div className="search-results">
