@@ -61,6 +61,17 @@ const ScannerSettings = ({ settings, onUpdate, onBack, embedded = false }) => {
                             <span className="option-desc">Specialized for 1D barcodes (Code 128).</span>
                         </div>
                     </label>
+                    <label className={`radio-option ${settings.detectionEngine === 'html5qrcode' ? 'selected' : ''}`}>
+                        <input
+                            type="radio"
+                            checked={settings.detectionEngine === 'html5qrcode'}
+                            onChange={() => handleChange('detectionEngine', 'html5qrcode')}
+                        />
+                        <div className="option-content">
+                            <span className="option-title">Html5-QRCode</span>
+                            <span className="option-desc">Alternative JS scanner, good compatibility.</span>
+                        </div>
+                    </label>
                 </div>
             </div>
 

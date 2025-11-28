@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as zbarWasm from '@undecaf/zbar-wasm';
 import Quagga from '@ericblade/quagga2';
+import { Html5Qrcode } from 'html5-qrcode';
 import './BarcodeScanner.css';
 
 const BarcodeScanner = ({ onScan, settings }) => {
@@ -257,6 +258,31 @@ const BarcodeScanner = ({ onScan, settings }) => {
         } catch (err) {
           console.warn("Quagga detection error:", err);
         }
+      } else if (settings.detectionEngine === 'html5qrcode') {
+        // --- HTML5-QRCODE DETECTION ---
+        try {
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+
+          // Html5Qrcode utilise une approche différente - on doit créer une instance temporaire
+          const html5QrCode = new Html5Qrcode("temp-reader");
+
+          // Convertir dataURL en File
+          const response = await fetch(dataUrl);
+          const blob = await response.blob();
+          const file = new File([blob], "scan.jpg", { type: "image/jpeg" });
+
+          const result = await html5QrCode.scanFile(file, false);
+
+          if (result) {
+            detectedCode = result;
+            console.log("Html5-QRCode detected:", detectedCode);
+          }
+
+          // Cleanup
+          html5QrCode.clear();
+        } catch (err) {
+          console.warn("Html5-QRCode detection error:", err);
+        }
       } else {
         // --- ZBAR WASM DETECTION ---
         // ROI (Region of Interest) - scan center 60%
@@ -402,7 +428,12 @@ const BarcodeScanner = ({ onScan, settings }) => {
 
   return (
     <div className="scanner-container">
-      {error && <div className="error-message">{error}</div>}
+      {error && (
+        <div className="error-message">
+          <span className="error-icon">⚠️</span>
+          {error}
+        </div>
+      )}
 
       <div className="scanner-video-container">
         <video ref={videoRef} playsInline muted style={{ display: isScanning ? 'block' : 'none' }}></video>
@@ -411,14 +442,37 @@ const BarcodeScanner = ({ onScan, settings }) => {
 
       {isScanning && (
         <div className="scanner-overlay-ui">
-          <div className="scan-region-marker"></div>
+          <div className="scan-frame">
+            <div className="corner top-left"></div>
+            <div className="corner top-right"></div>
+            <div className="corner bottom-left"></div>
+            <div className="corner bottom-right"></div>
+            <div className="scan-line"></div>
+          </div>
+
+          <div className="scanner-info">
+            <div className="info-badge">
+              <span className="badge-icon">📱</span>
+              <span className="badge-text">
+                {settings.detectionEngine === 'native' ? 'Native Scanner' : 'ZBar Scanner'}
+              </span>
+            </div>
+            {lastScanned && (
+              <div className="last-scanned">
+                <span className="scan-icon">✓</span>
+                <span className="scan-text">{lastScanned}</span>
+              </div>
+            )}
+          </div>
+
           {hasTorch && (
             <button
               className={`btn-torch ${torchOn ? 'active' : ''}`}
               onClick={toggleTorch}
               title="Toggle Flashlight"
             >
-              {torchOn ? '🔦 ON' : '🔦 OFF'}
+              <span className="torch-icon">{torchOn ? '🔦' : '💡'}</span>
+              <span className="torch-text">{torchOn ? 'ON' : 'OFF'}</span>
             </button>
           )}
         </div>
@@ -427,11 +481,13 @@ const BarcodeScanner = ({ onScan, settings }) => {
       <div className="scanner-controls">
         {!isScanning ? (
           <button className="btn-start" onClick={startScanning}>
-            📷 Démarrer
+            <span className="btn-icon">📷</span>
+            <span className="btn-text">Démarrer le scan</span>
           </button>
         ) : (
           <button className="btn-stop" onClick={stopScanning}>
-            ⏹ Arrêter
+            <span className="btn-icon">⏹</span>
+            <span className="btn-text">Arrêter</span>
           </button>
         )}
       </div>
