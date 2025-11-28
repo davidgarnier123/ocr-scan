@@ -174,43 +174,58 @@ const ScanSession = ({ settings, onInventoryCreated }) => {
 
             {showValidationModal && (
                 <div className="modal-overlay" onClick={() => setShowValidationModal(false)}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <h2>Finaliser l'inventaire</h2>
-
-                        <div className="modal-summary">
-                            <p><strong>{scannedCodes.length}</strong> équipement(s) scanné(s)</p>
-                        </div>
-
-                        <AgentSelector
-                            selectedAgent={selectedAgent}
-                            onSelect={setSelectedAgent}
-                        />
-
-                        <div className="form-group">
-                            <label htmlFor="notes">Notes (optionnel)</label>
-                            <textarea
-                                id="notes"
-                                className="notes-input"
-                                placeholder="Ex: Bureau 2ème étage, salle 204"
-                                value={notes}
-                                onChange={(e) => setNotes(e.target.value)}
-                                rows={3}
-                            />
-                        </div>
-
-                        <div className="modal-actions">
+                    <div className="validation-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2>Finaliser l'inventaire</h2>
                             <button
-                                className="btn-cancel"
+                                className="btn-close-modal"
+                                onClick={() => setShowValidationModal(false)}
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        <div className="modal-body">
+                            <div className="equipment-count">
+                                <span className="count-number">{scannedCodes.length}</span>
+                                <span className="count-label">équipement{scannedCodes.length > 1 ? 's' : ''} scanné{scannedCodes.length > 1 ? 's' : ''}</span>
+                            </div>
+
+                            <div className="form-section">
+                                <label className="form-label">Agent assigné *</label>
+                                <AgentSelector
+                                    selectedAgent={selectedAgent}
+                                    onSelect={setSelectedAgent}
+                                />
+                            </div>
+
+                            <div className="form-section">
+                                <label htmlFor="notes" className="form-label">Notes (optionnel)</label>
+                                <textarea
+                                    id="notes"
+                                    className="notes-textarea"
+                                    placeholder="Localisation, remarques..."
+                                    value={notes}
+                                    onChange={(e) => setNotes(e.target.value)}
+                                    rows={3}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="modal-footer">
+                            <button
+                                className="btn-modal-cancel"
                                 onClick={() => setShowValidationModal(false)}
                             >
                                 Annuler
                             </button>
                             <button
-                                className="btn-confirm"
+                                className="btn-modal-confirm"
                                 onClick={handleConfirmValidation}
                                 disabled={!selectedAgent}
                             >
-                                ✓ Confirmer
+                                <span className="btn-icon">✓</span>
+                                Confirmer
                             </button>
                         </div>
                     </div>

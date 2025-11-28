@@ -51,10 +51,11 @@
   z-index: 10;
 }
 
-/* Cadre de scan moderne avec coins */
+/* Cadre de scan responsive */
 .scan-frame {
-  width: 300px;
-  height: 180px;
+  width: 80%;
+  max-width: 300px;
+  aspect-ratio: 5 / 3;
   position: relative;
 }
 
@@ -118,7 +119,7 @@
   }
 
   50% {
-    transform: translateY(180px);
+    transform: translateY(calc(100% - 3px));
     opacity: 1;
   }
 }
@@ -194,7 +195,7 @@
   font-family: 'Courier New', monospace;
 }
 
-/* Bouton torche amélioré */
+/* Bouton torche */
 .btn-torch {
   position: absolute;
   bottom: 120px;
@@ -234,6 +235,7 @@
   letter-spacing: 0.5px;
 }
 
+/* Messages d'erreur */
 .error-message {
   position: absolute;
   top: 20px;
@@ -259,6 +261,7 @@
   font-size: 18px;
 }
 
+/* Contrôles du scanner */
 .scanner-controls {
   position: absolute;
   bottom: 32px;
@@ -317,29 +320,16 @@
   letter-spacing: 0.3px;
 }
 
+/* Responsive mobile */
 @media (max-width: 768px) {
   .scan-frame {
-    width: 280px;
-    height: 160px;
+    width: 85%;
+    max-width: 280px;
   }
 
   .corner {
     width: 35px;
     height: 35px;
-  }
-
-  @keyframes scan {
-
-    0%,
-    100% {
-      transform: translateY(0);
-      opacity: 0.6;
-    }
-
-    50% {
-      transform: translateY(160px);
-      opacity: 1;
-    }
   }
 
   .btn-start,
