@@ -86,7 +86,7 @@ const ScanSession = ({ settings, onInventoryCreated }) => {
 
     return (
         <div className="scan-session-page">
-            <div className="scanner-container">
+            <div className="scanner-section">
                 <BarcodeScanner
                     onScan={handleScan}
                     settings={settings}
