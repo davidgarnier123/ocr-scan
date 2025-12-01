@@ -6,12 +6,11 @@
     background: #f8f9fa;
 }
 
-/* Scanner fixe en haut */
+/* Scanner fixe en haut - auto height */
 .scanner-section {
     flex-shrink: 0;
     background: black;
     position: relative;
-    height: 500px;
     overflow: hidden;
 }
 

@@ -32,6 +32,26 @@ const BarcodeScanner = ({ onScan, settings }) => {
 
   return (
     <div className="scanner-container">
+      {isScanning ? (
+        <Html5QrcodePlugin
+          fps={settings.fps || 10}
+          qrbox={settings.qrbox || 250}
+          aspectRatio={settings.aspectRatio || 1.0}
+          cameraId={settings.cameraId}
+          formatsToSupport={[Html5QrcodeSupportedFormats.CODE_128]}
+          qrCodeSuccessCallback={onNewScanResult}
+          qrCodeErrorCallback={onScanError}
+          verbose={false}
+        />
+      ) : (
+        <div className="scanner-placeholder">
+          <div className="placeholder-content">
+            <span className="placeholder-icon">📷</span>
+            <p>Scanner désactivé</p>
+          </div>
+        </div>
+      )}
+
       <div className="scanner-controls">
         <button
           className={`scanner-toggle-btn ${isScanning ? 'scanning' : ''}`}
@@ -40,27 +60,6 @@ const BarcodeScanner = ({ onScan, settings }) => {
           {isScanning ? '⏸ Arrêter le scan' : '▶ Démarrer le scan'}
         </button>
       </div>
-
-      {isScanning && (
-        <Html5QrcodePlugin
-          fps={settings.fps || 10}
-          qrbox={settings.qrbox || 250}
-          aspectRatio={settings.aspectRatio || 1.0}
-          formatsToSupport={[Html5QrcodeSupportedFormats.CODE_128]}
-          qrCodeSuccessCallback={onNewScanResult}
-          qrCodeErrorCallback={onScanError}
-          verbose={false}
-        />
-      )}
-
-      {!isScanning && (
-        <div className="scanner-placeholder">
-          <div className="placeholder-content">
-            <span className="placeholder-icon">📷</span>
-            <p>Appuyez sur "Démarrer le scan" pour activer le scanner</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

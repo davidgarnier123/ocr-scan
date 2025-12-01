@@ -1,7 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { Html5Qrcode } from 'html5-qrcode';
 import './ScannerSettings.css';
 
 const ScannerSettings = ({ settings, onUpdate, onBack, embedded = false }) => {
+    const [cameras, setCameras] = useState([]);
+    const [loadingCameras, setLoadingCameras] = useState(true);
+
+    useEffect(() => {
+        // Charger la liste des caméras disponibles
+        const loadCameras = async () => {
+            try {
+                const devices = await Html5Qrcode.getCameras();
+                setCameras(devices);
+            } catch (err) {
+                console.error('Erreur chargement caméras:', err);
+            } finally {
+                setLoadingCameras(false);
+            }
+        };
+        loadCameras();
+    }, []);
 
     const handleChange = (key, value) => {
         onUpdate({ ...settings, [key]: value });
@@ -67,6 +85,33 @@ const ScannerSettings = ({ settings, onUpdate, onBack, embedded = false }) => {
                     <option value="1.77">Large (16:9)</option>
                 </select>
                 <p className="setting-hint">Ratio de la zone de scan</p>
+            </div>
+
+            <div className="settings-section">
+                <h3>📹 Caméra</h3>
+                {loadingCameras ? (
+                    <p className="setting-hint">Chargement des caméras...</p>
+                ) : cameras.length > 0 ? (
+                    <>
+                        <select
+                            value={settings.cameraId || ''}
+                            onChange={(e) => handleChange('cameraId', e.target.value)}
+                            className="settings-select"
+                        >
+                            <option value="">Caméra automatique</option>
+                            {cameras.map((camera) => (
+                                <option key={camera.id} value={camera.id}>
+                                    {camera.label || `Caméra ${camera.id.substring(0, 8)}...`}
+                                </option>
+                            ))}
+                        </select>
+                        <p className="setting-hint">
+                            {cameras.length} caméra(s) détectée(s). Par défaut, la caméra arrière est utilisée.
+                        </p>
+                    </>
+                ) : (
+                    <p className="setting-hint">Aucune caméra détectée</p>
+                )}
             </div>
 
             <div className="settings-section">

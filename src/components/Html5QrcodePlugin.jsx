@@ -27,16 +27,25 @@ const Html5QrcodePlugin = (props) => {
             try {
                 const cameras = await Html5Qrcode.getCameras();
                 if (cameras && cameras.length > 0) {
-                    // Chercher la caméra arrière
-                    const backCamera = cameras.find(camera =>
-                        camera.label.toLowerCase().includes('back') ||
-                        camera.label.toLowerCase().includes('arrière') ||
-                        camera.label.toLowerCase().includes('rear')
-                    ) || cameras[cameras.length - 1]; // Fallback: dernière caméra
+                    let selectedCamera;
+
+                    // Utiliser la caméra sélectionnée dans les settings si disponible
+                    if (props.cameraId) {
+                        selectedCamera = cameras.find(cam => cam.id === props.cameraId);
+                    }
+
+                    // Sinon, chercher la caméra arrière automatiquement
+                    if (!selectedCamera) {
+                        selectedCamera = cameras.find(camera =>
+                            camera.label.toLowerCase().includes('back') ||
+                            camera.label.toLowerCase().includes('arrière') ||
+                            camera.label.toLowerCase().includes('rear')
+                        ) || cameras[cameras.length - 1]; // Fallback: dernière caméra
+                    }
 
                     // Démarrer le scan avec la caméra sélectionnée
                     await html5Qrcode.start(
-                        backCamera.id,
+                        selectedCamera.id,
                         {
                             fps: config.fps,
                             qrbox: config.qrbox,
@@ -69,7 +78,7 @@ const Html5QrcodePlugin = (props) => {
                 html5QrcodeRef.current.stop().catch(console.error);
             }
         };
-    }, [props.fps, props.qrbox, props.aspectRatio, props.formatsToSupport]);
+    }, [props.fps, props.qrbox, props.aspectRatio, props.formatsToSupport, props.cameraId]);
 
     return (
         <div>
