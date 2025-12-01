@@ -50,21 +50,6 @@ const SettingsPage = ({ settings, onUpdateSettings }) => {
                         />
                     </div>
                 </section>
-
-                {/* Section À propos */}
-                <section className="settings-section">
-                    <h2>ℹ️ À propos</h2>
-                    <div className="setting-card">
-                        <div className="about-content">
-                            <h3>Application d'Inventaire Parc Informatique</h3>
-                            <p><strong>Version:</strong> 1.0.0</p>
-                            <p><strong>Description:</strong> Application de gestion d'inventaire par scan de codes-barres pour le suivi des équipements informatiques.</p>
-                            <p className="about-note">
-                                Cette application utilise le stockage local du navigateur. Aucune donnée n'est envoyée vers un serveur externe.
-                            </p>
-                        </div>
-                    </div>
-                </section>
             </div>
         </div>
     );

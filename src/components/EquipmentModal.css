@@ -39,17 +39,51 @@
 
 .equipment-title {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 1rem;
+    flex: 1;
+    min-width: 0;
 }
 
 .equipment-icon-large {
     font-size: 3rem;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+    flex-shrink: 0;
+}
+
+.equipment-title>div {
+    flex: 1;
+    min-width: 0;
 }
 
 .equipment-title h2 {
-    font-size: 1.5rem;
+    font-size: 1.35rem;
+    margin: 0;
+    font-weight: 600;
+    line-height: 1.3;
+    word-break: break-word;
+}
+
+.equipment-badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+
+.equipment-type,
+.internal-id-badge {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.close-button {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: none;
     width: 36px;
     height: 36px;
     border-radius: 50%;
@@ -59,6 +93,7 @@
     justify-content: center;
     transition: all 0.2s;
     flex-shrink: 0;
+    font-size: 20px;
 }
 
 .close-button:hover {
@@ -140,15 +175,11 @@
 @media (max-width: 640px) {
     .equipment-modal-overlay {
         padding: 0.5rem;
-        align-items: flex-end;
-        /* Bottom sheet style on mobile if desired, but user asked for modal */
-        /* Sticking to center for now as per request "modal", but ensuring it fits */
         align-items: center;
     }
 
     .equipment-modal-content {
         max-height: 85vh;
-        /* Slightly less on mobile to show overlay context */
     }
 
     .equipment-modal-header {
@@ -160,7 +191,7 @@
     }
 
     .equipment-title h2 {
-        font-size: 1.25rem;
+        font-size: 1.15rem;
     }
 
     .detail-grid {

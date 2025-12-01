@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Html5QrcodePlugin from './Html5QrcodePlugin';
 import './BarcodeScanner.css';
 import { Html5QrcodeSupportedFormats } from "html5-qrcode";
 
 const BarcodeScanner = ({ onScan, settings }) => {
+  const [isScanning, setIsScanning] = useState(false);
 
   const onNewScanResult = (decodedText, decodedResult) => {
     console.log("Scan détecté:", decodedText, decodedResult);
@@ -31,15 +32,35 @@ const BarcodeScanner = ({ onScan, settings }) => {
 
   return (
     <div className="scanner-container">
-      <Html5QrcodePlugin
-        fps={settings.fps || 10}
-        qrbox={settings.qrbox || 250}
-        aspectRatio={settings.aspectRatio || 1.0}
-        formatsToSupport={[Html5QrcodeSupportedFormats.CODE_128]}
-        qrCodeSuccessCallback={onNewScanResult}
-        qrCodeErrorCallback={onScanError}
-        verbose={false}
-      />
+      <div className="scanner-controls">
+        <button
+          className={`scanner-toggle-btn ${isScanning ? 'scanning' : ''}`}
+          onClick={() => setIsScanning(!isScanning)}
+        >
+          {isScanning ? '⏸ Arrêter le scan' : '▶ Démarrer le scan'}
+        </button>
+      </div>
+
+      {isScanning && (
+        <Html5QrcodePlugin
+          fps={settings.fps || 10}
+          qrbox={settings.qrbox || 250}
+          aspectRatio={settings.aspectRatio || 1.0}
+          formatsToSupport={[Html5QrcodeSupportedFormats.CODE_128]}
+          qrCodeSuccessCallback={onNewScanResult}
+          qrCodeErrorCallback={onScanError}
+          verbose={false}
+        />
+      )}
+
+      {!isScanning && (
+        <div className="scanner-placeholder">
+          <div className="placeholder-content">
+            <span className="placeholder-icon">📷</span>
+            <p>Appuyez sur "Démarrer le scan" pour activer le scanner</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
