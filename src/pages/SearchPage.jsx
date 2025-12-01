@@ -102,9 +102,9 @@ const SearchPage = () => {
     return (
         <div className="search-page">
             <div className="page-header">
-                <h1>Recherche d'équipements</h1>
+                <h1>Recherche</h1>
                 <p className="header-subtitle">
-                    {databaseMeta.totalItems} équipement{databaseMeta.totalItems > 1 ? 's' : ''} dans la base
+                    {databaseMeta.totalItems} équipement{databaseMeta.totalItems > 1 ? 's' : ''}
                 </p>
             </div>
 

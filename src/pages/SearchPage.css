@@ -144,23 +144,6 @@
     margin: 0 0 3px 0;
     font-size: 14px;
     font-weight: 700;
-    color: var(--gray-900);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.eq-type {
-    margin: 0 0 3px 0;
-    font-size: 11px;
-    color: var(--gray-600);
-    font-weight: 500;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.eq-code {
     margin: 0 0 3px 0;
     font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
     font-size: 11px;

@@ -45,8 +45,14 @@ const AgentSelector = ({ selectedAgent, onSelect }) => {
         setAgentSearch(value);
         setShowSuggestions(true);
 
-        // Reset selected agent if input doesn't match
-        if (selectedAgent && value !== selectedAgent.name) {
+        // Create a custom agent object with the typed name
+        if (value.trim()) {
+            const customAgent = {
+                name: value.trim(),
+                service: 'Non répertorié'
+            };
+            onSelect(customAgent);
+        } else {
             onSelect(null);
         }
     };

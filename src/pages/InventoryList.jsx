@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import InventoryCard from '../components/InventoryCard';
 import EquipmentModal from '../components/EquipmentModal';
+import ExportButton from '../components/ExportButton';
 import { getEquipmentDatabase } from '../utils/storage';
 import './InventoryList.css';
 
@@ -17,10 +18,15 @@ const InventoryList = ({ inventories, onDelete }) => {
     return (
         <div className="inventory-list-page">
             <div className="page-header">
-                <h1>Historique des inventaires</h1>
-                <p className="page-subtitle">
-                    {inventories.length} inventaire(s) enregistré(s)
-                </p>
+                <div className="header-content">
+                    <div>
+                        <h1>Historique</h1>
+                        <p className="page-subtitle">
+                            {inventories.length} inventaire(s)
+                        </p>
+                    </div>
+                    <ExportButton inventories={inventories} equipmentDatabase={equipmentDatabase} />
+                </div>
             </div>
 
             {inventories.length === 0 ? (

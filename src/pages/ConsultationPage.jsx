@@ -60,8 +60,8 @@ const ConsultationPage = () => {
     return (
         <div className="consultation-page">
             <div className="page-header">
-                <h1>Consultation Agent</h1>
-                <p className="page-subtitle">Recherchez un agent pour voir son inventaire</p>
+                <h1>Agents</h1>
+                <p className="page-subtitle">Inventaire par agent</p>
             </div>
 
             <div className="search-section">
