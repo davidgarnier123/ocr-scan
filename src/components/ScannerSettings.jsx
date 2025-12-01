@@ -7,131 +7,82 @@ const ScannerSettings = ({ settings, onUpdate, onBack, embedded = false }) => {
         onUpdate({ ...settings, [key]: value });
     };
 
-    const handleFormatToggle = (format) => {
-        const currentFormats = settings.formats || [];
-        if (currentFormats.includes(format)) {
-            handleChange('formats', currentFormats.filter(f => f !== format));
-        } else {
-            handleChange('formats', [...currentFormats, format]);
-        }
-    };
-
     return (
         <div className={`settings-container ${embedded ? 'embedded' : ''}`}>
             {!embedded && (
                 <div className="settings-header">
-                    <h2>Scanner Settings</h2>
+                    <h2>Paramètres du Scanner</h2>
                     <button className="btn-close" onClick={onBack}>✕</button>
                 </div>
             )}
 
             <div className="settings-section">
-                <h3>Detection Engine</h3>
-                <div className="radio-group vertical">
-                    <label className={`radio-option ${settings.detectionEngine === 'native' ? 'selected' : ''}`}>
-                        <input
-                            type="radio"
-                            checked={settings.detectionEngine === 'native'}
-                            onChange={() => handleChange('detectionEngine', 'native')}
-                        />
-                        <div className="option-content">
-                            <span className="option-title">Native API (Android/Chrome)</span>
-                            <span className="option-desc">Fastest, uses device hardware.</span>
-                        </div>
-                    </label>
-                    <label className={`radio-option ${settings.detectionEngine === 'zbar' ? 'selected' : ''}`}>
-                        <input
-                            type="radio"
-                            checked={settings.detectionEngine === 'zbar'}
-                            onChange={() => handleChange('detectionEngine', 'zbar')}
-                        />
-                        <div className="option-content">
-                            <span className="option-title">ZBar (WASM) - Optimisé iOS</span>
-                            <span className="option-desc">Robust for iOS Safari. Optimized 1D barcode detection.</span>
-                        </div>
-                    </label>
-                    <label className={`radio-option ${settings.detectionEngine === 'html5-qrcode' ? 'selected' : ''}`}>
-                        <input
-                            type="radio"
-                            checked={settings.detectionEngine === 'html5-qrcode'}
-                            onChange={() => handleChange('detectionEngine', 'html5-qrcode')}
-                        />
-                        <div className="option-content">
-                            <span className="option-title">Html5-Qrcode</span>
-                            <span className="option-desc">Reliable cross-platform scanner.</span>
-                        </div>
-                    </label>
-                </div>
+                <h3>⚙️ Scanner Code 128</h3>
+                <p className="section-description">
+                    Scanner optimisé pour les codes <strong>Code 128</strong> avec caméra arrière
+                </p>
             </div>
 
             <div className="settings-section">
-                <h3>Barcode Formats</h3>
-                <div className="checkbox-grid">
-                    {['code_128', 'code_39', 'ean_13', 'qr_code', 'upc_a'].map(fmt => (
-                        <label key={fmt} className="checkbox-option">
-                            <input
-                                type="checkbox"
-                                checked={settings.formats?.includes(fmt)}
-                                onChange={() => handleFormatToggle(fmt)}
-                            />
-                            {fmt.replace('_', ' ').toUpperCase()}
-                        </label>
-                    ))}
-                </div>
-            </div>
-
-            <div className="settings-section">
-                <h3>Camera Resolution</h3>
-                <select
-                    value={settings.resolution}
-                    onChange={(e) => handleChange('resolution', e.target.value)}
-                    className="settings-select"
-                >
-                    <option value="480">480p (Fastest)</option>
-                    <option value="720">720p (Balanced)</option>
-                    <option value="1080">1080p (High Detail)</option>
-                    <option value="2160">4K (Max Detail)</option>
-                </select>
-            </div>
-
-            <div className="settings-section">
-                <h3>Scan Interval (ms)</h3>
+                <h3>Vitesse de Scan (FPS)</h3>
                 <div className="range-control">
                     <input
                         type="range"
-                        min="0"
-                        max="1000"
-                        step="50"
-                        value={settings.scanInterval}
-                        onChange={(e) => handleChange('scanInterval', parseInt(e.target.value))}
+                        min="5"
+                        max="30"
+                        step="5"
+                        value={settings.fps || 10}
+                        onChange={(e) => handleChange('fps', parseInt(e.target.value))}
                     />
-                    <span>{settings.scanInterval} ms</span>
+                    <span className="range-value">{settings.fps || 10} fps</span>
                 </div>
-                <p className="setting-hint">Higher interval = less CPU usage, slower detection.</p>
+                <p className="setting-hint">Plus élevé = détection plus rapide mais plus de batterie</p>
             </div>
 
             <div className="settings-section">
-                <h3>Feedback & UI</h3>
-                <label className="toggle-option">
-                    <span>Vibrate on Scan</span>
+                <h3>Taille de la Zone de Scan</h3>
+                <div className="range-control">
                     <input
-                        type="checkbox"
-                        checked={settings.vibrate}
-                        onChange={(e) => handleChange('vibrate', e.target.checked)}
+                        type="range"
+                        min="150"
+                        max="350"
+                        step="25"
+                        value={settings.qrbox || 250}
+                        onChange={(e) => handleChange('qrbox', parseInt(e.target.value))}
                     />
-                </label>
+                    <span className="range-value">{settings.qrbox || 250}px</span>
+                </div>
+                <p className="setting-hint">Taille de la zone de détection du code-barres</p>
+            </div>
+
+            <div className="settings-section">
+                <h3>Format de la Zone</h3>
+                <select
+                    value={settings.aspectRatio || 1.0}
+                    onChange={(e) => handleChange('aspectRatio', parseFloat(e.target.value))}
+                    className="settings-select"
+                >
+                    <option value="1.0">Carré (1:1)</option>
+                    <option value="1.33">Standard (4:3)</option>
+                    <option value="1.77">Large (16:9)</option>
+                </select>
+                <p className="setting-hint">Ratio de la zone de scan</p>
+            </div>
+
+            <div className="settings-section">
+                <h3>Retour Haptique</h3>
                 <label className="toggle-option">
-                    <span>Show Bounding Box</span>
+                    <span>Vibrer lors de la détection</span>
                     <input
                         type="checkbox"
-                        checked={settings.showBoundingBox}
-                        onChange={(e) => handleChange('showBoundingBox', e.target.checked)}
+                        checked={settings.vibrate !== false}
+                        onChange={(e) => handleChange('vibrate', e.target.checked)}
                     />
                 </label>
             </div>
 
             {!embedded && (
-                <button className="btn-save" onClick={onBack}>Save & Return</button>
+                <button className="btn-save" onClick={onBack}>Enregistrer et Retourner</button>
             )}
         </div>
     );

@@ -15,23 +15,39 @@ function App() {
   const [settings, setSettings] = useState(() => {
     const saved = localStorage.getItem('scannerSettings');
     let initialSettings = saved ? JSON.parse(saved) : {
-      detectionEngine: 'native', // 'native', 'zbar', 'quagga'
-      formats: ['code_128', 'code_39'],
+      fps: 10,
+      qrbox: 250,
+      aspectRatio: 1.0,
       resolution: '1080',
-      scanInterval: 100,
-      showBoundingBox: true,
       vibrate: true
     };
 
-    // Migration: If useNative exists but detectionEngine doesn't
-    if (initialSettings.useNative !== undefined && initialSettings.detectionEngine === undefined) {
-      initialSettings.detectionEngine = initialSettings.useNative ? 'native' : 'zbar';
+    // Migration: Remove old settings that are no longer used
+    if (initialSettings.detectionEngine !== undefined) {
+      delete initialSettings.detectionEngine;
+    }
+    if (initialSettings.formats !== undefined) {
+      delete initialSettings.formats;
+    }
+    if (initialSettings.scanInterval !== undefined) {
+      delete initialSettings.scanInterval;
+    }
+    if (initialSettings.showBoundingBox !== undefined) {
+      delete initialSettings.showBoundingBox;
+    }
+    if (initialSettings.useNative !== undefined) {
       delete initialSettings.useNative;
     }
 
-    // Default to native if undefined
-    if (!initialSettings.detectionEngine) {
-      initialSettings.detectionEngine = 'native';
+    // Set defaults for new settings if missing
+    if (initialSettings.fps === undefined) {
+      initialSettings.fps = 10;
+    }
+    if (initialSettings.qrbox === undefined) {
+      initialSettings.qrbox = 250;
+    }
+    if (initialSettings.aspectRatio === undefined) {
+      initialSettings.aspectRatio = 1.0;
     }
 
     return initialSettings;
