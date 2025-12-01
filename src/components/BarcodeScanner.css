@@ -1,14 +1,14 @@
-/* BarcodeScanner - Style minimal pour intégration propre */
+/* BarcodeScanner - Style minimal, scanner uniquement */
 .scanner-container {
   width: 100%;
   margin: 0;
   padding: 0;
 }
 
-/* html5-qrcode styles override */
+/* html5-qrcode reader */
 #html5qr-code-reader {
   width: 100%;
-  border: none;
+  position: relative;
 }
 
 #html5qr-code-reader video {
@@ -18,117 +18,30 @@
   border-radius: 0;
 }
 
-/* Dashboard (contrôles sous la vidéo) */
-#html5qr-code-reader__dashboard {
-  background: #f8f9fa;
-  padding: 16px;
-  border-top: 1px solid #dee2e6;
-}
-
-#html5qr-code-reader__dashboard_section {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-#html5qr-code-reader__dashboard_section_csr,
-#html5qr-code-reader__dashboard_section_fsr {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-/* Boutons */
-#html5qr-code-reader__dashboard_section_csr button,
-#html5qr-code-reader__dashboard_section_fsr button {
-  background: #0d6efd;
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 6px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-#html5qr-code-reader__dashboard_section_csr button:hover,
-#html5qr-code-reader__dashboard_section_fsr button:hover {
-  background: #0b5ed7;
-}
-
-/* Select caméra */
-#html5qr-code-reader__dashboard_section_csr select {
-  padding: 10px;
-  border-radius: 6px;
-  border: 2px solid #ced4da;
-  font-size: 14px;
-  background: white;
-  color: #212529;
-  width: 100%;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-#html5qr-code-reader__dashboard_section_csr select:focus {
-  border-color: #0d6efd;
-}
-
 /* Zone de scan */
 #html5qr-code-reader__scan_region {
   border: 3px solid #0d6efd !important;
-  box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* Status messages */
-#html5qr-code-reader__status_span {
-  text-align: center;
-  padding: 8px;
-  font-size: 13px;
-  color: #6c757d;
-}
-
-/* Header text (si présent) */
-#html5qr-code-reader__header_message {
-  text-align: center;
-  padding: 12px;
-  font-size: 14px;
-  color: #495057;
-  background: #e9ecef;
-  border-radius: 6px;
-}
-
-/* File upload section */
+/* Cacher le dashboard (pas besoin avec Html5Qrcode) */
+#html5qr-code-reader__dashboard,
+#html5qr-code-reader__dashboard_section,
+#html5qr-code-reader__dashboard_section_csr,
 #html5qr-code-reader__dashboard_section_fsr {
-  border-top: 1px solid #dee2e6;
-  padding-top: 12px;
-  margin-top: 8px;
+  display: none !important;
 }
 
-#html5qr-code-reader__dashboard_section_fsr input[type="file"] {
-  padding: 8px;
-  border: 2px dashed #ced4da;
+/* Status overlay si présent */
+#html5qr-code-reader__status_span {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px 16px;
   border-radius: 6px;
-  width: 100%;
-  cursor: pointer;
-  background: white;
-}
-
-#html5qr-code-reader__dashboard_section_fsr input[type="file"]:hover {
-  border-color: #0d6efd;
-}
-
-/* Mobile */
-@media (max-width: 768px) {
-  #html5qr-code-reader__dashboard {
-    padding: 12px;
-  }
-
-  #html5qr-code-reader__dashboard_section_csr button,
-  #html5qr-code-reader__dashboard_section_fsr button {
-    padding: 10px 16px;
-    font-size: 14px;
-  }
+  font-size: 13px;
+  z-index: 10;
 }

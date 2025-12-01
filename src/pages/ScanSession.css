@@ -1,34 +1,36 @@
 .scan-session-page {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
     background: #f8f9fa;
 }
 
-/* Scanner Section - Prend toute la largeur */
+/* Scanner fixe en haut */
 .scanner-section {
-    background: white;
-    padding: 0;
-    border-bottom: 1px solid #dee2e6;
+    flex-shrink: 0;
+    background: black;
+    position: relative;
+    height: 300px;
+    overflow: hidden;
 }
 
 /* Section Input Manuel */
 .manual-input-section {
+    flex-shrink: 0;
     background: white;
-    padding: 16px;
+    padding: 12px 16px;
     border-bottom: 1px solid #dee2e6;
 }
 
 .manual-input-container {
     display: flex;
-    gap: 12px;
-    max-width: 600px;
-    margin: 0 auto;
+    gap: 8px;
 }
 
 .manual-code-input {
     flex: 1;
-    padding: 12px 16px;
+    padding: 10px 14px;
     border: 2px solid #ced4da;
     border-radius: 6px;
     font-size: 16px;
@@ -48,23 +50,26 @@
     letter-spacing: normal;
     font-family: system-ui, -apple-system, sans-serif;
     color: #6c757d;
+    font-size: 14px;
 }
 
 .btn-add-manual {
-    padding: 12px 24px;
+    padding: 10px 20px;
     background: #0d6efd;
     color: white;
     border: none;
     border-radius: 6px;
     font-weight: 600;
+    font-size: 14px;
     cursor: pointer;
     transition: background 0.2s;
     display: flex;
     align-items: center;
     gap: 6px;
+    white-space: nowrap;
 }
 
-.btn-add-manual:hover:not(:disabled) {
+.btn-add-manual:active:not(:disabled) {
     background: #0b5ed7;
 }
 
@@ -74,26 +79,30 @@
 }
 
 .btn-add-manual .btn-icon {
-    font-size: 18px;
+    font-size: 16px;
 }
 
-/* Liste des items scannés */
+/* Liste scrollable qui prend le reste de l'espace */
 .scanned-items {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     background: #f8f9fa;
-    padding: 16px;
 }
 
 .scanned-header {
-    max-width: 600px;
-    margin: 0 auto 16px;
+    flex-shrink: 0;
+    padding: 12px 16px;
+    background: white;
+    border-bottom: 1px solid #dee2e6;
 }
 
 .scanned-header h2 {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 600;
     color: #212529;
-    margin: 0 0 12px 0;
+    margin: 0 0 10px 0;
 }
 
 .header-actions {
@@ -104,7 +113,7 @@
 .btn-clear,
 .btn-validate {
     flex: 1;
-    padding: 10px 16px;
+    padding: 10px 14px;
     border: none;
     border-radius: 6px;
     font-size: 14px;
@@ -118,7 +127,7 @@
     color: #495057;
 }
 
-.btn-clear:hover {
+.btn-clear:active {
     background: #dee2e6;
 }
 
@@ -127,28 +136,27 @@
     color: white;
 }
 
-.btn-validate:hover {
+.btn-validate:active {
     background: #0b5ed7;
 }
 
 /* Liste scrollable */
 .scanned-list {
-    max-width: 600px;
-    margin: 0 auto;
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 16px;
     display: flex;
     flex-direction: column;
     gap: 8px;
-    max-height: calc(100vh - 500px);
-    overflow-y: auto;
 }
 
 .scanned-item {
     background: white;
-    padding: 12px;
+    padding: 10px 12px;
     border-radius: 6px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     border: 1px solid #dee2e6;
     transition: all 0.2s;
 }
@@ -157,9 +165,9 @@
     cursor: pointer;
 }
 
-.scanned-item[style*="pointer"]:hover {
+.scanned-item[style*="pointer"]:active {
     border-color: #0d6efd;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: #f8f9fa;
 }
 
 .item-number {
@@ -167,14 +175,15 @@
     color: #6c757d;
     padding: 4px 8px;
     border-radius: 4px;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
-    min-width: 32px;
+    min-width: 28px;
     text-align: center;
 }
 
 .item-icon {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
+    line-height: 1;
 }
 
 .item-info {
@@ -191,7 +200,7 @@
 }
 
 .item-name {
-    font-size: 13px;
+    font-size: 12px;
     color: #6c757d;
     margin-top: 2px;
 }
@@ -201,17 +210,19 @@
     color: white;
     border: none;
     border-radius: 4px;
-    width: 32px;
-    height: 32px;
-    font-size: 16px;
+    width: 30px;
+    height: 30px;
+    font-size: 15px;
+    line-height: 1;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
     transition: background 0.2s;
 }
 
-.btn-remove:hover {
+.btn-remove:active {
     background: #bb2d3b;
 }
 
@@ -224,25 +235,37 @@
     bottom: 0;
     background: rgba(0, 0, 0, 0.5);
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
     z-index: 1000;
-    padding: 16px;
+    padding: 0;
 }
 
 .validation-modal {
     background: white;
-    border-radius: 8px;
+    border-radius: 16px 16px 0 0;
     width: 100%;
-    max-width: 500px;
-    max-height: 90vh;
+    max-width: 100%;
+    max-height: 85vh;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
 }
 
 .modal-header {
-    padding: 20px;
+    flex-shrink: 0;
+    padding: 16px;
     border-bottom: 1px solid #dee2e6;
     display: flex;
     align-items: center;
@@ -251,7 +274,7 @@
 
 .modal-header h2 {
     margin: 0;
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     font-weight: 600;
     color: #212529;
 }
@@ -263,51 +286,54 @@
     border: none;
     background: #e9ecef;
     color: #495057;
-    font-size: 20px;
+    font-size: 18px;
+    line-height: 1;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
     transition: background 0.2s;
 }
 
-.btn-close-modal:hover {
+.btn-close-modal:active {
     background: #dee2e6;
 }
 
 .modal-body {
-    padding: 20px;
-    overflow-y: auto;
     flex: 1;
+    padding: 16px;
+    overflow-y: auto;
 }
 
 .equipment-count {
     background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
-    padding: 24px;
+    padding: 20px;
     border-radius: 8px;
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
 .count-number {
     display: block;
-    font-size: 48px;
+    font-size: 42px;
     font-weight: 700;
     color: white;
     line-height: 1;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .count-label {
     display: block;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(255, 255, 255, 0.95);
     text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .form-section {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
 .form-label {
@@ -320,12 +346,13 @@
 
 .notes-textarea {
     width: 100%;
-    padding: 12px;
+    padding: 10px 12px;
     border: 2px solid #ced4da;
     border-radius: 6px;
     font-size: 14px;
     font-family: inherit;
     resize: vertical;
+    min-height: 80px;
     outline: none;
     transition: all 0.2s;
 }
@@ -340,10 +367,12 @@
 }
 
 .modal-footer {
-    padding: 20px;
+    flex-shrink: 0;
+    padding: 16px;
     border-top: 1px solid #dee2e6;
     display: flex;
-    gap: 12px;
+    gap: 10px;
+    background: #f8f9fa;
 }
 
 .btn-modal-cancel,
@@ -367,7 +396,7 @@
     color: white;
 }
 
-.btn-modal-cancel:hover {
+.btn-modal-cancel:active {
     background: #5c636a;
 }
 
@@ -376,7 +405,7 @@
     color: white;
 }
 
-.btn-modal-confirm:hover:not(:disabled) {
+.btn-modal-confirm:active:not(:disabled) {
     background: #0b5ed7;
 }
 
@@ -386,40 +415,5 @@
 }
 
 .btn-modal-confirm .btn-icon {
-    font-size: 18px;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .manual-input-section {
-        padding: 12px;
-    }
-
-    .manual-input-container {
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .btn-add-manual {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .scanned-items {
-        padding: 12px;
-    }
-
-    .scanned-list {
-        max-height: calc(100vh - 450px);
-    }
-
-    .modal-header,
-    .modal-body,
-    .modal-footer {
-        padding: 16px;
-    }
-
-    .count-number {
-        font-size: 40px;
-    }
+    font-size: 16px;
 }
