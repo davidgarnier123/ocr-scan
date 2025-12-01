@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as zbarWasm from '@undecaf/zbar-wasm';
+import Html5QrcodePlugin from './Html5QrcodePlugin';
 import './BarcodeScanner.css';
 
 const BarcodeScanner = ({ onScan, settings }) => {
@@ -35,6 +36,12 @@ const BarcodeScanner = ({ onScan, settings }) => {
     stopScanning();
 
     try {
+      // If using html5-qrcode, we don't need to manually manage the camera here
+      // The plugin handles it.
+      if (settings.detectionEngine === 'html5-qrcode') {
+        return;
+      }
+
       // Initialize Detectors based on settings
       if (settings.detectionEngine === 'native' && 'BarcodeDetector' in window) {
         try {
@@ -379,69 +386,82 @@ const BarcodeScanner = ({ onScan, settings }) => {
 
   return (
     <div className="scanner-container">
-      {error && (
-        <div className="error-message">
-          <span className="error-icon">⚠️</span>
-          {error}
+      {settings.detectionEngine === 'html5-qrcode' ? (
+        <div className="html5-qrcode-wrapper">
+          <Html5QrcodePlugin
+            fps={10}
+            qrbox={250}
+            disableFlip={false}
+            qrCodeSuccessCallback={(decodedText) => onScan(decodedText)}
+          />
         </div>
-      )}
+      ) : (
+        <>
+          {error && (
+            <div className="error-message">
+              <span className="error-icon">⚠️</span>
+              {error}
+            </div>
+          )}
 
-      <div className="scanner-video-container">
-        <video ref={videoRef} playsInline muted style={{ display: isScanning ? 'block' : 'none' }}></video>
-        <canvas ref={canvasRef} className="drawing-canvas" style={{ display: isScanning ? 'absolute' : 'block' }}></canvas>
-      </div>
-
-      {isScanning && (
-        <div className="scanner-overlay-ui">
-          <div className="scan-frame">
-            <div className="corner top-left"></div>
-            <div className="corner top-right"></div>
-            <div className="corner bottom-left"></div>
-            <div className="corner bottom-right"></div>
-            <div className="scan-line"></div>
+          <div className="scanner-video-container">
+            <video ref={videoRef} playsInline muted style={{ display: isScanning ? 'block' : 'none' }}></video>
+            <canvas ref={canvasRef} className="drawing-canvas" style={{ display: isScanning ? 'absolute' : 'block' }}></canvas>
           </div>
 
-          <div className="scanner-info">
-            <div className="info-badge">
-              <span className="badge-icon">📱</span>
-              <span className="badge-text">
-                {settings.detectionEngine === 'native' ? 'Native Scanner' : 'ZBar Scanner'}
-              </span>
-            </div>
-            {lastScanned && (
-              <div className="last-scanned">
-                <span className="scan-icon">✓</span>
-                <span className="scan-text">{lastScanned}</span>
+          {isScanning && (
+            <div className="scanner-overlay-ui">
+              <div className="scan-frame">
+                <div className="corner top-left"></div>
+                <div className="corner top-right"></div>
+                <div className="corner bottom-left"></div>
+                <div className="corner bottom-right"></div>
+                <div className="scan-line"></div>
               </div>
+
+              <div className="scanner-info">
+                <div className="info-badge">
+                  <span className="badge-icon">📱</span>
+                  <span className="badge-text">
+                    {settings.detectionEngine === 'native' ? 'Native Scanner' : 'ZBar Scanner'}
+                  </span>
+                </div>
+                {lastScanned && (
+                  <div className="last-scanned">
+                    <span className="scan-icon">✓</span>
+                    <span className="scan-text">{lastScanned}</span>
+                  </div>
+                )}
+              </div>
+
+              {hasTorch && (
+                <button
+                  className={`btn-torch ${torchOn ? 'active' : ''}`}
+                  onClick={toggleTorch}
+                  title="Toggle Flashlight"
+                >
+                  <span className="torch-icon">{torchOn ? '🔦' : '💡'}</span>
+                  <span className="torch-text">{torchOn ? 'ON' : 'OFF'}</span>
+                </button>
+              )}
+            </div>
+          )}
+
+          <div className="scanner-controls">
+            {!isScanning ? (
+              <button className="btn-start" onClick={startScanning}>
+                <span className="btn-icon">📷</span>
+                <span className="btn-text">Démarrer le scan</span>
+              </button>
+            ) : (
+              <button className="btn-stop" onClick={stopScanning}>
+                <span className="btn-icon">⏹</span>
+                <span className="btn-text">Arrêter</span>
+              </button>
             )}
           </div>
-
-          {hasTorch && (
-            <button
-              className={`btn-torch ${torchOn ? 'active' : ''}`}
-              onClick={toggleTorch}
-              title="Toggle Flashlight"
-            >
-              <span className="torch-icon">{torchOn ? '🔦' : '💡'}</span>
-              <span className="torch-text">{torchOn ? 'ON' : 'OFF'}</span>
-            </button>
-          )}
-        </div>
+        </>
       )}
-
-      <div className="scanner-controls">
-        {!isScanning ? (
-          <button className="btn-start" onClick={startScanning}>
-            <span className="btn-icon">📷</span>
-            <span className="btn-text">Démarrer le scan</span>
-          </button>
-        ) : (
-          <button className="btn-stop" onClick={stopScanning}>
-            <span className="btn-icon">⏹</span>
-            <span className="btn-text">Arrêter</span>
-          </button>
-        )}
-      </div>
     </div>
   );
 };

@@ -50,6 +50,17 @@ const ScannerSettings = ({ settings, onUpdate, onBack, embedded = false }) => {
                             <span className="option-desc">Robust for iOS Safari. Optimized 1D barcode detection.</span>
                         </div>
                     </label>
+                    <label className={`radio-option ${settings.detectionEngine === 'html5-qrcode' ? 'selected' : ''}`}>
+                        <input
+                            type="radio"
+                            checked={settings.detectionEngine === 'html5-qrcode'}
+                            onChange={() => handleChange('detectionEngine', 'html5-qrcode')}
+                        />
+                        <div className="option-content">
+                            <span className="option-title">Html5-Qrcode</span>
+                            <span className="option-desc">Reliable cross-platform scanner.</span>
+                        </div>
+                    </label>
                 </div>
             </div>
 

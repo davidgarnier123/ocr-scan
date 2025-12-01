@@ -7,29 +7,29 @@
 }
 
 .page-header {
-    padding: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
     background: var(--white);
     border-bottom: 1px solid var(--gray-200);
     flex-shrink: 0;
 }
 
 .page-header h1 {
-    margin: 0 0 4px 0;
-    font-size: 20px;
+    margin: 0;
+    font-size: 18px;
     font-weight: 700;
     color: var(--gray-900);
 }
 
 .header-subtitle {
     margin: 0;
-    font-size: 14px;
-    color: var(--gray-600);
+    font-size: 12px;
+    color: var(--gray-500);
 }
 
 /* Search Bar */
 .search-filters {
     flex-shrink: 0;
-    padding: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
     background: var(--white);
     border-bottom: 1px solid var(--gray-200);
     display: flex;
@@ -39,10 +39,10 @@
 
 .search-input {
     flex: 1;
-    padding: 12px 16px;
+    padding: 10px 14px;
     border: 2px solid var(--gray-300);
     border-radius: var(--radius-md);
-    font-size: 15px;
+    font-size: 14px;
     outline: none;
     transition: all var(--transition-base);
 }
@@ -53,7 +53,7 @@
 }
 
 .btn-clear-search {
-    padding: 12px;
+    padding: 10px;
     background: var(--gray-100);
     border: none;
     border-radius: var(--radius-md);
@@ -61,8 +61,8 @@
     color: var(--gray-600);
     cursor: pointer;
     transition: all var(--transition-base);
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -93,7 +93,7 @@
 
 .results-count {
     margin: 0;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     color: var(--gray-600);
 }
@@ -112,7 +112,7 @@
 
 .equipment-card {
     background: var(--white);
-    padding: var(--spacing-md);
+    padding: var(--spacing-sm);
     border-radius: var(--radius-md);
     border: 1px solid var(--gray-200);
     cursor: pointer;
@@ -130,7 +130,7 @@
 }
 
 .eq-icon {
-    font-size: 2rem;
+    font-size: 1.8rem;
     flex-shrink: 0;
 }
 
@@ -141,8 +141,8 @@
 }
 
 .eq-info h3 {
-    margin: 0 0 4px 0;
-    font-size: 15px;
+    margin: 0 0 3px 0;
+    font-size: 14px;
     font-weight: 700;
     color: var(--gray-900);
     overflow: hidden;
@@ -151,8 +151,8 @@
 }
 
 .eq-type {
-    margin: 0 0 4px 0;
-    font-size: 12px;
+    margin: 0 0 3px 0;
+    font-size: 11px;
     color: var(--gray-600);
     font-weight: 500;
     overflow: hidden;
@@ -161,13 +161,13 @@
 }
 
 .eq-code {
-    margin: 0 0 4px 0;
+    margin: 0 0 3px 0;
     font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     color: var(--primary-blue);
     background: var(--soft-blue);
-    padding: 3px 6px;
+    padding: 2px 5px;
     border-radius: var(--radius-sm);
     display: inline-block;
     max-width: 100%;
@@ -176,8 +176,8 @@
 }
 
 .eq-agent {
-    margin: 4px 0 0 0;
-    font-size: 11px;
+    margin: 3px 0 0 0;
+    font-size: 10px;
     color: var(--gray-600);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -194,7 +194,7 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--spacing-sm);
-    padding: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
     background: var(--white);
     border-top: 2px solid var(--gray-200);
     box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
@@ -203,11 +203,11 @@
 
 .btn-page {
     flex: 1;
-    padding: 12px 16px;
+    padding: 10px 12px;
     background: var(--white);
     border: 2px solid var(--gray-300);
     border-radius: var(--radius-md);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--gray-700);
     cursor: pointer;
@@ -229,12 +229,12 @@
 }
 
 .page-indicator {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     color: var(--gray-700);
     text-align: center;
     white-space: nowrap;
-    padding: 0 var(--spacing-sm);
+    padding: 0 var(--spacing-xs);
     flex-shrink: 0;
 }
 
