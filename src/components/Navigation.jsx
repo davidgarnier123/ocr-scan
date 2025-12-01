@@ -3,9 +3,9 @@ import './Navigation.css';
 const Navigation = ({ currentPage, onNavigate }) => {
     const pages = [
         { id: 'scanner', label: 'Scanner', icon: '📷' },
-        { id: 'inventories', label: 'Inventaires', icon: '📋' },
+        { id: 'inventories', label: 'Historique', icon: '📋' },
         { id: 'search', label: 'Recherche', icon: '🔍' },
-        { id: 'consultation', label: 'Consultation', icon: '👤' },
+        { id: 'consultation', label: 'Agents', icon: '👤' },
         { id: 'settings', label: 'Paramètres', icon: '⚙️' }
     ];
 
