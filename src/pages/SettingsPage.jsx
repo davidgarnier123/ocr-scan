@@ -39,20 +39,20 @@ const SettingsPage = ({ settings, onUpdateSettings }) => {
                     </div>
                 </section>
 
-            </section>
 
-            {/* Section Scanner */}
-            <section className="settings-section">
-                <h2>📷 Configuration du scanner</h2>
-                <div className="scanner-settings-wrapper">
-                    <ScannerSettings
-                        settings={settings}
-                        onUpdate={onUpdateSettings}
-                        embedded={true}
-                    />
-                </div>
-            </section>
-        </div>
+
+                {/* Section Scanner */}
+                <section className="settings-section">
+                    <h2>📷 Configuration du scanner</h2>
+                    <div className="scanner-settings-wrapper">
+                        <ScannerSettings
+                            settings={settings}
+                            onUpdate={onUpdateSettings}
+                            embedded={true}
+                        />
+                    </div>
+                </section>
+            </div>
         </div >
     );
 };
