@@ -1,4 +1,9 @@
-.settings-page {}
+.settings-page {
+    padding: var(--spacing-lg) var(--spacing-md);
+    max-width: 1200px;
+    margin: 0 auto;
+    min-height: calc(100vh - 65px);
+}
 
 .settings-section {
     background: var(--white);
@@ -58,56 +63,7 @@
     font-weight: 600;
 }
 
-.setting-info p {
-    margin: 0;
-    font-size: 13px;
-    color: var(--gray-500);
-    line-height: 1.5;
-}
-
-.btn-secondary,
-.btn-danger {
-    padding: 10px var(--spacing-md);
-    border: none;
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all var(--transition-base);
-    white-space: nowrap;
-}
-
-.btn-secondary {
-    background: var(--gray-200);
-    color: var(--gray-500);
-}
-
-.btn-secondary:disabled {
-    cursor: not-allowed;
-    opacity: 0.6;
-}
-
-.btn-danger {
-    background: var(--error-light);
-    color: var(--error);
-}
-
-.btn-danger:active {
-    background: var(--error);
-    color: var(--white);
-    transform: scale(0.98);
-}
-
-.scanner-settings-wrapper {
-    background: var(--white);
-    border-radius: var(--radius-sm);
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.about-content {
-    padding: var(--spacing-sm) 0;
-}
+.setting-info p {}
 
 .about-content h3 {
     margin: 0 0 var(--spacing-md) 0;
@@ -131,19 +87,6 @@
     margin-top: var(--spacing-md);
     padding: var(--spacing-md);
     background: var(--soft-blue);
-    border-radius: var(--radius-sm);
-    font-style: italic;
-    color: var(--gray-600);
-    border: 1px solid var(--primary-blue-light);
-}
-
-/* Mobile */
-@media (max-width: 768px) {
-    .settings-page {
-        padding: var(--spacing-md);
-        padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
-        min-height: calc(100vh - 125px);
-    }
 
     .page-header h1 {
         font-size: 24px;

@@ -76,12 +76,17 @@
     border-bottom: none;
     padding-bottom: env(safe-area-inset-bottom, 0px);
     background: var(--white);
-    overflow-x: visible;
+    overflow-x: hidden;
+    /* Prevent scrolling */
   }
 
   .nav-item {
     flex: 1;
-    padding: 12px 4px;
+    /* Distribute space equally */
+    min-width: 0;
+    /* Allow shrinking below content size if needed */
+    padding: 12px 2px;
+    /* Reduce padding */
     border-bottom: none;
     border-top: 2px solid transparent;
   }
@@ -93,10 +98,13 @@
 
   .nav-icon {
     font-size: 22px;
+    margin-bottom: 2px;
   }
 
   .nav-label {
     font-size: 9px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 

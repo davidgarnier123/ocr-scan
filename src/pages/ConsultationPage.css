@@ -129,8 +129,10 @@
     font-weight: 600;
 }
 
-grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-gap: var(--spacing-md);
+.equipment-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: var(--spacing-md);
 }
 
 .equipment-card-mini {

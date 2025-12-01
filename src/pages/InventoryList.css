@@ -1,6 +1,8 @@
 .inventory-list-page {
-    justify-content: center;
-    padding: 80px var(--spacing-lg);
+    padding: var(--spacing-lg) var(--spacing-md);
+    max-width: 1200px;
+    margin: 0 auto;
+    min-height: calc(100vh - 65px);
     text-align: center;
 }
 
@@ -129,6 +131,8 @@
     flex: 1;
     overflow-y: auto;
     padding: var(--spacing-lg);
+    padding-bottom: calc(var(--spacing-lg) + 80px);
+    /* Space for bottom nav */
 }
 
 .devices-section h3 {
@@ -138,16 +142,28 @@
     font-weight: 700;
 }
 
-
+.page-header {
+    background: transparent;
+    padding-bottom: var(--spacing-lg);
+}
 
 .page-header h1 {
-    font-size: 24px;
+    margin: 0 0 var(--spacing-xs) 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--gray-900);
 }
 
-.inventory-grid {
-    grid-template-columns: 1fr;
-}
+@media (max-width: 768px) {
+    .page-header h1 {
+        font-size: 24px;
+    }
 
-.modal-content {
-    max-width: 100%;
+    .inventory-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-content {
+        max-width: 100%;
+    }
 }
