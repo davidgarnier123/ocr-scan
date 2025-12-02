@@ -1,3 +1,6 @@
+/* Import CSS Variables */
+@import './variables.css';
+
 body {
   font-family: -apple-system,
     BlinkMacSystemFont,

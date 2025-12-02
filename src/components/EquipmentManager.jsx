@@ -163,9 +163,6 @@ const EquipmentManager = () => {
                         onChange={(e) => handleFileUpload(e.target.files[0])}
                         style={{ display: 'none' }}
                     />
-                    <button className="btn-secondary" onClick={downloadSampleCSV}>
-                        📄 Template CSV
-                    </button>
                 </div>
             </div>
 

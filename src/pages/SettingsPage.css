@@ -1,5 +1,5 @@
 .settings-page {
-    padding: var(--spacing-lg) var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
     max-width: 1200px;
     margin: 0 auto;
     min-height: calc(100vh - 65px);
@@ -63,7 +63,7 @@
     font-weight: 600;
 }
 
-.setting-info p {}
+
 
 .about-content h3 {
     margin: 0 0 var(--spacing-md) 0;
@@ -87,7 +87,13 @@
     margin-top: var(--spacing-md);
     padding: var(--spacing-md);
     background: var(--soft-blue);
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    color: var(--primary-blue);
+}
 
+/* Mobile Adjustments */
+@media (max-width: 768px) {
     .page-header h1 {
         font-size: 24px;
     }
