@@ -100,9 +100,29 @@ const ConsultationPage = () => {
                     />
                 </div>
 
-                {/* Dropdown de recherche */}
-                {isFocused && searchTerm && !selectedAgent && (
+                {/* Dropdown de recherche unifié */}
+                {isFocused && !selectedAgent && (
                     <div className="agents-dropdown">
+                        {/* Section Derniers agents (si pas de recherche) */}
+                        {!searchTerm && recentAgents.length > 0 && (
+                            <>
+                                <div className="dropdown-section-title">Derniers consultés</div>
+                                {recentAgents.map(agent => (
+                                    <div
+                                        key={`recent-${agent.name}`}
+                                        className="agent-option recent"
+                                        onClick={() => handleAgentSelect(agent)}
+                                    >
+                                        <div className="agent-option-name">{agent.name}</div>
+                                        <div className="agent-option-service">{agent.service}</div>
+                                    </div>
+                                ))}
+                                <div className="dropdown-divider"></div>
+                                <div className="dropdown-section-title">Tous les agents</div>
+                            </>
+                        )}
+
+                        {/* Liste des agents (filtrée ou complète) */}
                         {filteredAgents.length > 0 ? (
                             filteredAgents.map(agent => (
                                 <div
@@ -119,30 +139,6 @@ const ConsultationPage = () => {
                                 Aucun agent trouvé
                             </div>
                         )}
-                    </div>
-                )}
-
-                {/* Derniers agents consultés */}
-                {!searchTerm && !selectedAgent && recentAgents.length > 0 && (
-                    <div className="recent-agents-section">
-                        <h3 className="recent-title">Derniers agents consultés</h3>
-                        <div className="recent-agents-list">
-                            {recentAgents.map(agent => (
-                                <div
-                                    key={agent.name}
-                                    className="recent-agent-card"
-                                    onClick={() => handleAgentSelect(agent)}
-                                >
-                                    <div className="recent-avatar">
-                                        {agent.name.charAt(0)}
-                                    </div>
-                                    <div className="recent-info">
-                                        <div className="recent-name">{agent.name}</div>
-                                        <div className="recent-service">{agent.service}</div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
                     </div>
                 )}
             </div>
