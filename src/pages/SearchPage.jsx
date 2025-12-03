@@ -145,19 +145,37 @@ const SearchPage = () => {
                             {paginatedEquipments.map((equipment, index) => (
                                 <div
                                     key={index}
-                                    className="equipment-card"
+                                    className="equipment-card compact"
                                     onClick={() => setSelectedEquipment(equipment)}
                                 >
-                                    <span className="eq-icon">
-                                        {getEquipmentIcon(equipment.equipment_type)}
-                                    </span>
-                                    <div className="eq-info">
-                                        <h3>{equipment.brand} {equipment.model}</h3>
-                                        <p className="eq-type">{equipment.equipment_type}</p>
-                                        <p className="eq-code">{equipment.barcode_id}</p>
-                                        {equipment.agent_name && (
-                                            <p className="eq-agent">👤 {equipment.agent_name}</p>
-                                        )}
+                                    <div className="card-main-row">
+                                        <div className="card-icon-wrapper">
+                                            <span className="eq-icon">
+                                                {getEquipmentIcon(equipment.equipment_type)}
+                                            </span>
+                                        </div>
+                                        <div className="card-content">
+                                            <div className="card-header-row">
+                                                <span className="eq-brand-model">{equipment.brand} {equipment.model}</span>
+                                                {equipment.agent_name && (
+                                                    <span className="eq-agent-badge">👤 {equipment.agent_name}</span>
+                                                )}
+                                            </div>
+
+                                            <div className="card-ids-row">
+                                                <span className="eq-code-badge">{equipment.barcode_id}</span>
+                                                {equipment.internal_id && (
+                                                    <span className="eq-internal-badge">ID: {equipment.internal_id}</span>
+                                                )}
+                                            </div>
+
+                                            {equipment.comment && (
+                                                <div className="card-comment-row">
+                                                    <span className="comment-icon">💬</span>
+                                                    <span className="eq-comment">{equipment.comment}</span>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             ))}
