@@ -27,6 +27,8 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  padding-bottom: 100px;
+  /* Space for bottom navigation */
 }
 
 /* Scanned list overlay (pour la vue scanner simple dans App.jsx) */

@@ -237,18 +237,19 @@
     align-items: flex-end;
     justify-content: center;
     z-index: 1000;
-    padding: 0;
+    padding: 10px;
 }
 
 .validation-modal {
     background: white;
-    border-radius: 16px 16px 0 0;
-    width: 100%;
-    max-width: 100%;
+    border-radius: 16px;
+    width: 95%;
+    max-width: 500px;
+    margin-bottom: 16px;
     max-height: 85vh;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     animation: slideUp 0.3s ease-out;
 }
 

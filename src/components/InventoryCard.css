@@ -1,18 +1,17 @@
 .inventory-card {
     background: var(--white);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-lg);
-    box-shadow: var(--shadow-md);
-    border: 1px solid var(--gray-200);
-    transition: transform var(--transition-base), box-shadow var(--transition-base);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-md);
+    gap: 12px;
 }
 
-.inventory-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+.inventory-card:active {
+    transform: scale(0.98);
 }
 
 .inventory-header {
@@ -72,19 +71,21 @@
 .inventory-devices-list {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-xs);
+    gap: 8px;
 }
 
 .device-row {
     display: flex;
     align-items: center;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-xs) var(--spacing-sm);
-    border-radius: var(--radius-sm);
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
-    transition: background-color var(--transition-fast);
+    transition: background-color 0.2s;
+    background-color: #f8f9fa;
+    border: 1px solid transparent;
 }
 
 .device-row:hover {
@@ -107,7 +108,12 @@
 }
 
 .device-icon {
-    font-size: 16px;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
 }
 
 .device-code {
