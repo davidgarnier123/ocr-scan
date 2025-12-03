@@ -16,56 +16,85 @@
 
 .inventory-header {
     display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.header-top {
+    display: flex;
     justify-content: space-between;
     align-items: flex-start;
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.inventory-date {
+    font-size: 12px;
+    color: var(--gray-500);
+    font-weight: 500;
+}
+
 .agent-name {
     margin: 0;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 700;
     color: var(--gray-900);
 }
 
 .agent-service {
-    margin: 4px 0 0 0;
-    font-size: 13px;
+    margin: 2px 0 0 0;
+    font-size: 12px;
     color: var(--gray-500);
     font-weight: 500;
+}
+
+.inventory-notes {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    background: var(--gray-50);
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+
+.notes-icon {
+    font-size: 14px;
+    opacity: 0.7;
+    margin-top: 1px;
+}
+
+.notes-text {
+    margin: 0;
+    font-size: 13px;
+    color: var(--gray-700);
+    line-height: 1.4;
+    font-style: italic;
 }
 
 .btn-delete-icon {
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 18px;
-    opacity: 0.5;
-    transition: opacity var(--transition-base);
+    font-size: 16px;
+    opacity: 0.4;
+    transition: all var(--transition-base);
     padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-delete-icon:hover {
     opacity: 1;
-}
-
-.inventory-meta {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
-    padding-bottom: var(--spacing-md);
-    border-bottom: 1px solid var(--gray-100);
-}
-
-.meta-item {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    font-size: 13px;
-    color: var(--gray-600);
-}
-
-.meta-icon {
-    font-size: 14px;
+    transform: scale(1.1);
+    background: var(--red-50);
+    border-radius: 4px;
 }
 
 .inventory-devices-list {

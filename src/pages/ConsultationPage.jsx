@@ -146,9 +146,6 @@ const ConsultationPage = () => {
             {selectedAgent && (
                 <div className="agent-details-container">
                     <div className="agent-header-card">
-                        <div className="agent-avatar">
-                            {selectedAgent.name.charAt(0)}
-                        </div>
                         <div className="agent-info-large">
                             <h2>{selectedAgent.name}</h2>
                             <p>{selectedAgent.service}</p>

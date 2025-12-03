@@ -164,9 +164,6 @@ const SearchPage = () => {
 
                                             <div className="card-ids-row">
                                                 <span className="eq-code-badge">{equipment.barcode_id}</span>
-                                                {equipment.internal_id && (
-                                                    <span className="eq-internal-badge">ID: {equipment.internal_id}</span>
-                                                )}
                                             </div>
 
                                             {equipment.comment && (

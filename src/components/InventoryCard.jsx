@@ -45,24 +45,23 @@ const InventoryCard = ({ inventory, equipmentDatabase, onDelete, onDeviceClick }
     return (
         <div className="inventory-card">
             <div className="inventory-header">
-                <div className="agent-info">
-                    <h3 className="agent-name">{inventory.agent.name}</h3>
-                    <p className="agent-service">{inventory.agent.service}</p>
+                <div className="header-top">
+                    <div className="agent-info">
+                        <h3 className="agent-name">{inventory.agent.name}</h3>
+                        <p className="agent-service">{inventory.agent.service}</p>
+                    </div>
+                    <div className="header-actions">
+                        <span className="inventory-date">{formatDate(inventory.createdAt)}</span>
+                        <button className="btn-delete-icon" onClick={() => onDelete(inventory.id)} title="Supprimer">
+                            🗑️
+                        </button>
+                    </div>
                 </div>
-                <button className="btn-delete-icon" onClick={() => onDelete(inventory.id)} title="Supprimer">
-                    🗑️
-                </button>
-            </div>
 
-            <div className="inventory-meta">
-                <div className="meta-item">
-                    <span className="meta-icon">📅</span>
-                    <span className="meta-text">{formatDate(inventory.createdAt)}</span>
-                </div>
                 {inventory.notes && (
-                    <div className="meta-item">
-                        <span className="meta-icon">📝</span>
-                        <span className="meta-text">{inventory.notes}</span>
+                    <div className="inventory-notes">
+                        <span className="notes-icon">📝</span>
+                        <p className="notes-text">{inventory.notes}</p>
                     </div>
                 )}
             </div>
