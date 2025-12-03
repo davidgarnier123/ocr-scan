@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import InventoryCard from '../components/InventoryCard';
 import EquipmentModal from '../components/EquipmentModal';
 import { getEquipmentDatabase, extractAgentsFromDatabase } from '../utils/storage';
@@ -10,8 +10,24 @@ const ConsultationPage = () => {
     const [selectedEquipment, setSelectedEquipment] = useState(null);
     const [isFocused, setIsFocused] = useState(false);
 
+    const [recentAgents, setRecentAgents] = useState([]);
+
     const equipmentDatabase = getEquipmentDatabase();
     const agents = useMemo(() => extractAgentsFromDatabase(), []);
+
+    // Load recent agents on mount
+    useEffect(() => {
+        const saved = localStorage.getItem('recentAgents');
+        if (saved) {
+            setRecentAgents(JSON.parse(saved));
+        }
+    }, []);
+
+    const addToRecentAgents = (agent) => {
+        const newRecent = [agent, ...recentAgents.filter(a => a.name !== agent.name)].slice(0, 5);
+        setRecentAgents(newRecent);
+        localStorage.setItem('recentAgents', JSON.stringify(newRecent));
+    };
 
     // Filter agents based on search term
     const filteredAgents = useMemo(() => {
@@ -44,6 +60,7 @@ const ConsultationPage = () => {
         setSelectedAgent(agent);
         setSearchTerm(agent.name);
         setIsFocused(false);
+        addToRecentAgents(agent);
     };
 
     const getEquipmentIcon = (type) => {
@@ -83,7 +100,8 @@ const ConsultationPage = () => {
                     />
                 </div>
 
-                {isFocused && !selectedAgent && (
+                {/* Dropdown de recherche */}
+                {isFocused && searchTerm && !selectedAgent && (
                     <div className="agents-dropdown">
                         {filteredAgents.length > 0 ? (
                             filteredAgents.map(agent => (
@@ -101,6 +119,30 @@ const ConsultationPage = () => {
                                 Aucun agent trouvé
                             </div>
                         )}
+                    </div>
+                )}
+
+                {/* Derniers agents consultés */}
+                {!searchTerm && !selectedAgent && recentAgents.length > 0 && (
+                    <div className="recent-agents-section">
+                        <h3 className="recent-title">Derniers agents consultés</h3>
+                        <div className="recent-agents-list">
+                            {recentAgents.map(agent => (
+                                <div
+                                    key={agent.name}
+                                    className="recent-agent-card"
+                                    onClick={() => handleAgentSelect(agent)}
+                                >
+                                    <div className="recent-avatar">
+                                        {agent.name.charAt(0)}
+                                    </div>
+                                    <div className="recent-info">
+                                        <div className="recent-name">{agent.name}</div>
+                                        <div className="recent-service">{agent.service}</div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 )}
             </div>

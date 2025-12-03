@@ -4,6 +4,7 @@
     margin: 0 auto;
     min-height: calc(100vh - 65px);
     text-align: center;
+    padding-bottom: 100px;
 }
 
 .empty-icon {

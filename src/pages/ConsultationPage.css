@@ -199,3 +199,71 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Recent Agents */
+.recent-agents-section {
+    margin-top: 24px;
+    border-top: 1px solid var(--gray-200);
+    padding-top: 16px;
+}
+
+.recent-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gray-500);
+    margin: 0 0 12px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.recent-agents-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.recent-agent-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.recent-agent-card:hover {
+    background: var(--gray-50);
+    border-color: var(--primary-blue);
+    transform: translateX(4px);
+}
+
+.recent-avatar {
+    width: 36px;
+    height: 36px;
+    background: var(--soft-blue);
+    color: var(--primary-blue);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.recent-info {
+    flex: 1;
+}
+
+.recent-name {
+    font-weight: 600;
+    color: var(--gray-900);
+    font-size: 14px;
+}
+
+.recent-service {
+    font-size: 12px;
+    color: var(--gray-500);
+}
